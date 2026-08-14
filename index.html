@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JNANASHAKTHI MAINTENANCE - Stock Register</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div>
+    <h1>JNANASHAKTHI MAINTENANCE</h1>
+    <p>Maintenance Department • Stock Register</p>
+  </div>
+  <button id="clearBtn" class="danger">Clear All Data</button>
+</header>
+
+<nav>
+  <button class="tab active" data-tab="dashboard">Dashboard</button>
+  <button class="tab" data-tab="items">Item Master</button>
+  <button class="tab" data-tab="in">Stock In</button>
+  <button class="tab" data-tab="out">Stock Out</button>
+  <button class="tab" data-tab="stock">Current Stock</button>
+</nav>
+
+<main>
+<section id="dashboard" class="page active">
+  <h2>Dashboard</h2>
+  <div class="cards">
+    <div class="card"><span>Total Items</span><b id="totalItems">0</b></div>
+    <div class="card"><span>Total Stock In</span><b id="totalIn">0</b></div>
+    <div class="card"><span>Total Stock Out</span><b id="totalOut">0</b></div>
+    <div class="card low"><span>Low Stock Items</span><b id="lowStock">0</b></div>
+  </div>
+  <div class="panel">
+    <h3>Quick Summary</h3>
+    <p id="summary">Add items and stock transactions to begin.</p>
+  </div>
+</section>
+
+<section id="items" class="page">
+  <h2>Item Master</h2>
+  <form id="itemForm" class="formgrid">
+    <input id="itemName" placeholder="Item name" required>
+    <input id="itemCode" placeholder="Item code">
+    <input id="category" placeholder="Category">
+    <input id="unit" placeholder="Unit (Nos, Kg, Mtr)" value="Nos">
+    <input id="minStock" type="number" min="0" placeholder="Minimum stock" value="0">
+    <button type="submit">Add Item</button>
+  </form>
+  <input class="search" id="itemSearch" placeholder="Search items...">
+  <div class="tablewrap"><table><thead><tr><th>Code</th><th>Item</th><th>Category</th><th>Unit</th><th>Min</th><th>Action</th></tr></thead><tbody id="itemTable"></tbody></table></div>
+</section>
+
+<section id="in" class="page">
+  <h2>Stock In</h2>
+  <form id="inForm" class="formgrid">
+    <input id="inDate" type="date" required>
+    <select id="inItem" required></select>
+    <input id="inQty" type="number" min="1" placeholder="Quantity" required>
+    <input id="supplier" placeholder="Supplier">
+    <input id="invoice" placeholder="Invoice No.">
+    <button type="submit">Add Stock In</button>
+  </form>
+  <div class="tablewrap"><table><thead><tr><th>Date</th><th>Item</th><th>Qty</th><th>Supplier</th><th>Invoice</th><th>Action</th></tr></thead><tbody id="inTable"></tbody></table></div>
+</section>
+
+<section id="out" class="page">
+  <h2>Stock Out</h2>
+  <form id="outForm" class="formgrid">
+    <input id="outDate" type="date" required>
+    <select id="outItem" required></select>
+    <input id="outQty" type="number" min="1" placeholder="Quantity" required>
+    <input id="issuedTo" placeholder="Issued to">
+    <input id="workOrder" placeholder="Work / Job No.">
+    <button type="submit">Issue Stock</button>
+  </form>
+  <div class="tablewrap"><table><thead><tr><th>Date</th><th>Item</th><th>Qty</th><th>Issued To</th><th>Work</th><th>Action</th></tr></thead><tbody id="outTable"></tbody></table></div>
+</section>
+
+<section id="stock" class="page">
+  <h2>Current Stock</h2>
+  <input class="search" id="stockSearch" placeholder="Search current stock...">
+  <div class="tablewrap"><table><thead><tr><th>Code</th><th>Item</th><th>Unit</th><th>Stock In</th><th>Stock Out</th><th>Balance</th><th>Status</th></tr></thead><tbody id="stockTable"></tbody></table></div>
+</section>
+</main>
+
+<footer>Free local version • Data is stored in this browser</footer>
+<script src="script.js"></script>
+</body>
+</html>
