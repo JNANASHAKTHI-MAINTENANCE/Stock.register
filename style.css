@@ -1,1 +1,305 @@
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f7fb;color:#18324a}header{background:linear-gradient(135deg,#075aa6,#0b83d5);color:white;padding:20px;display:flex;justify-content:space-between;align-items:center;gap:15px}h1{margin:0;font-size:24px}header p{margin:5px 0 0;opacity:.9}nav{display:flex;gap:6px;overflow:auto;background:#fff;padding:10px;border-bottom:1px solid #d9e3ec}.tab{border:0;background:#eaf2f9;padding:12px 18px;border-radius:8px;color:#164d78;font-weight:bold;cursor:pointer}.tab.active{background:#0875c9;color:#fff}main{max-width:1200px;margin:auto;padding:20px}.page{display:none}.page.active{display:block}h2{margin-top:0}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.card,.panel{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 10px #17324a12}.card span{display:block;color:#647b8d}.card b{font-size:32px;display:block;margin-top:8px}.card.low b{color:#d98200}.formgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;background:#fff;padding:15px;border-radius:12px;margin-bottom:15px}.formgrid input,.formgrid select,.search{width:100%;padding:11px;border:1px solid #cbd8e3;border-radius:7px;font-size:14px}.formgrid button{background:#0875c9;color:#fff;border:0;border-radius:7px;font-weight:bold;cursor:pointer}.search{margin:5px 0 15px}.tablewrap{overflow:auto;background:#fff;border-radius:10px}.tablewrap table{width:100%;border-collapse:collapse;min-width:650px}.tablewrap th,.tablewrap td{padding:11px;border-bottom:1px solid #e5edf3;text-align:left}.tablewrap th{background:#eaf3fa}.delete{border:0;background:#ffe5e5;color:#b40000;padding:6px 9px;border-radius:6px;cursor:pointer}.danger{background:#d93636;color:#fff;border:0;border-radius:7px;padding:10px 14px;cursor:pointer}footer{text-align:center;color:#6d8190;padding:20px}@media(max-width:700px){header{display:block}header button{margin-top:12px}.cards{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:1fr}.formgrid button{padding:12px}.cards .card b{font-size:26px}main{padding:12px}h1{font-size:19px}}
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#0b1118;
+  color:#e8f1ff;
+}
+
+header{
+  background:linear-gradient(135deg,#061326,#073b91);
+  padding:28px 35px;
+  border-bottom:2px solid #087cff;
+}
+
+header h1{
+  margin:0;
+  font-size:30px;
+  font-weight:800;
+  letter-spacing:.5px;
+}
+
+header p{
+  margin:8px 0 20px;
+  font-size:18px;
+  color:#b9d4f5;
+}
+
+header button{
+  background:#e50914;
+  color:white;
+  border:0;
+  padding:13px 22px;
+  border-radius:10px;
+  font-size:16px;
+  font-weight:bold;
+}
+
+nav{
+  display:flex;
+  gap:10px;
+  padding:16px 20px;
+  background:#111820;
+  overflow-x:auto;
+  border-bottom:1px solid #263442;
+}
+
+.tab{
+  min-width:130px;
+  padding:16px 20px;
+  border:0;
+  border-radius:12px;
+  background:#3a444e;
+  color:#b9d9f7;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.tab.active{
+  background:linear-gradient(135deg,#087cff,#0754b8);
+  color:white;
+  box-shadow:0 5px 18px rgba(0,124,255,.3);
+}
+
+main{
+  max-width:1400px;
+  margin:auto;
+  padding:28px;
+}
+
+.page{
+  display:none;
+}
+
+.page.active{
+  display:block;
+}
+
+h2{
+  font-size:30px;
+  margin:0 0 25px;
+  color:#cfe5ff;
+}
+
+h3{
+  color:#dcecff;
+}
+
+.cards{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:18px;
+  margin-bottom:22px;
+}
+
+.card{
+  min-height:145px;
+  padding:25px;
+  border-radius:16px;
+  background:linear-gradient(145deg,#0875e1,#064ba5);
+  box-shadow:0 8px 25px rgba(0,0,0,.25);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+.card:nth-child(2){
+  background:linear-gradient(145deg,#087d58,#075b43);
+}
+
+.card:nth-child(3){
+  background:linear-gradient(145deg,#a45b12,#70400d);
+}
+
+.card:nth-child(4){
+  background:linear-gradient(145deg,#5930a7,#38206e);
+}
+
+.card span{
+  font-size:17px;
+  color:#d8eaff;
+  margin-bottom:10px;
+}
+
+.card b{
+  font-size:38px;
+  color:white;
+}
+
+.card.low b{
+  color:#ffd21c;
+}
+
+.panel{
+  background:#151c24;
+  border:1px solid #263544;
+  border-radius:16px;
+  padding:25px;
+  box-shadow:0 8px 25px rgba(0,0,0,.2);
+}
+
+.formgrid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+  background:#171b20;
+  padding:25px;
+  border-radius:16px;
+  margin-bottom:22px;
+}
+
+.formgrid input,
+.formgrid select{
+  width:100%;
+  padding:15px;
+  border-radius:10px;
+  border:1px solid #45515e;
+  background:#242424;
+  color:white;
+  font-size:16px;
+  outline:none;
+}
+
+.formgrid input:focus,
+.formgrid select:focus{
+  border-color:#087cff;
+  box-shadow:0 0 0 2px rgba(8,124,255,.15);
+}
+
+.formgrid button{
+  grid-column:1/-1;
+  padding:15px;
+  border:0;
+  border-radius:10px;
+  background:linear-gradient(135deg,#087cff,#0754b8);
+  color:white;
+  font-size:17px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.search{
+  width:100%;
+  padding:15px;
+  margin:10px 0 18px;
+  border-radius:10px;
+  border:1px solid #40505e;
+  background:#171d24;
+  color:white;
+  font-size:16px;
+}
+
+.tablewrap{
+  overflow-x:auto;
+  background:#151c24;
+  border-radius:15px;
+  border:1px solid #263544;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:650px;
+}
+
+th{
+  background:#14202a;
+  color:#cce5ff;
+  padding:16px;
+  text-align:left;
+  font-size:16px;
+}
+
+td{
+  padding:14px 16px;
+  border-top:1px solid #29343f;
+  color:#d7e4f1;
+}
+
+tr:hover td{
+  background:#18232d;
+}
+
+button{
+  cursor:pointer;
+}
+
+footer{
+  text-align:center;
+  padding:35px 20px;
+  color:#91a5b8;
+  font-size:15px;
+}
+
+@media(max-width:900px){
+  .cards{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  main{
+    padding:20px;
+  }
+}
+
+@media(max-width:600px){
+  header{
+    padding:24px 20px;
+  }
+
+  header h1{
+    font-size:23px;
+  }
+
+  header p{
+    font-size:16px;
+  }
+
+  nav{
+    padding:12px 16px;
+  }
+
+  .tab{
+    min-width:110px;
+    padding:14px 12px;
+    font-size:15px;
+  }
+
+  main{
+    padding:18px;
+  }
+
+  h2{
+    font-size:27px;
+  }
+
+  .cards{
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+
+  .card{
+    min-height:125px;
+    padding:18px;
+  }
+
+  .card span{
+    font-size:14px;
+  }
+
+  .card b{
+    font-size:32px;
+  }
+
+  .formgrid{
+    grid-template-columns:1fr;
+    padding:18px;
+  }
+
+  .formgrid button{
+    grid-column:1;
+  }
+}
