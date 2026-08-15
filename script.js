@@ -397,4 +397,16 @@ $("clearBtn").onclick = async () => {
   }
 };
 
+$("supplierForm").onsubmit = async e => {
+  e.preventDefault();
+
+  try {
+    await addSupplier();
+    e.target.reset();
+    await render();
+    alert("Supplier added successfully!");
+  } catch (error) {
+    alert("Could not add Supplier.\n\n" + error.message);
+  }
+};
 render();
