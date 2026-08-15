@@ -242,11 +242,21 @@ const stockPercent = items.length
 
 $("statusPercent").textContent = stockPercent + "%";
 
-// Stock bar
+// ===== STOCK BAR =====
 const stockBar = $("stockInBar");
 
 if (stockBar) {
-    stockBar.style.width = Math.min(100, stockPercent) + "%";
+    const total = totalIn + totalOut;
+
+    if (total > 0) {
+        const inPercent = Math.round((totalIn / total) * 100);
+
+        stockBar.style.width = inPercent + "%";
+        stockBar.textContent = totalIn + " Stock In";
+    } else {
+        stockBar.style.width = "0%";
+        stockBar.textContent = "";
+    }
 }
     $("inItem").innerHTML = items.map(item =>
       `<option value="${item.id}">
