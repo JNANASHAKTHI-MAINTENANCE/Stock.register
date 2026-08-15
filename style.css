@@ -362,3 +362,29 @@ footer{
     box-sizing: border-box;
   }
 }
+/* MOBILE NAVIGATION FIX */
+@media screen and (max-width: 600px) {
+
+  nav {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    display: flex;
+    gap: 10px;
+    padding: 12px 10px;
+    box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  nav::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .tab {
+    flex: 0 0 auto;
+    min-width: 120px;
+    text-align: center;
+    white-space: nowrap;
+  }
+}
