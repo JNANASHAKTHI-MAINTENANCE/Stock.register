@@ -146,9 +146,9 @@ async function addStockOut() {
 
 async function addSupplier() {
   const supplier = {
-    supplier_name: $("supplierName").value.trim(),
-    contact_number: $("supplierContact").value.trim()
-  };
+  supplier_name: document.getElementById("supplierName").value.trim(),
+  contact_number: document.getElementById("supplierContact").value.trim()
+};
 
   if (!supplier.supplier_name) {
     alert("Enter Supplier Name");
