@@ -192,7 +192,57 @@ async function render() {
 
     $("totalIn").textContent = totalIn;
     $("totalOut").textContent = totalOut;
+// ===== PROFESSIONAL DASHBOARD =====
 
+const currentStock = totalIn - totalOut;
+
+// Stock Overview
+$("overviewIn").textContent = totalIn;
+$("overviewOut").textContent = totalOut;
+$("overviewCurrent").textContent = currentStock;
+
+// Count stock status
+let inStockItems = 0;
+let lowStockItems = 0;
+
+items.forEach(item => {
+    const itemIn = ins
+        .filter(x => String(x.item_id) === String(item.id))
+        .reduce((sum, x) => sum + Number(x.qty || 0), 0);
+
+    const itemOut = outs
+        .filter(x => String(x.item_id) === String(item.id))
+        .reduce((sum, x) => sum + Number(x.qty || 0), 0);
+
+    const balance = itemIn - itemOut;
+    const minimum = Number(item.min_stock || 0);
+
+    if (balance > 0) {
+        inStockItems++;
+    }
+
+    if (balance <= minimum) {
+        lowStockItems++;
+    }
+});
+
+// Stock Status
+$("statusIn").textContent = inStockItems;
+$("statusLow").textContent = lowStockItems;
+
+// Percentage of items in stock
+const stockPercent = items.length
+    ? Math.round((inStockItems / items.length) * 100)
+    : 0;
+
+$("statusPercent").textContent = stockPercent + "%";
+
+// Stock bar
+const stockBar = $("stockInBar");
+
+if (stockBar) {
+    stockBar.style.width = Math.min(100, stockPercent) + "%";
+}
     $("inItem").innerHTML = items.map(item =>
       `<option value="${item.id}">
         ${item.name}${item.code ? " - " + item.code : ""}
