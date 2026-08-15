@@ -252,7 +252,7 @@ if (stockBar) {
         const inPercent = Math.round((totalIn / total) * 100);
 
         stockBar.style.width = inPercent + "%";
-        stockBar.textContent = totalIn + " Stock In";
+        stockBar.textContent = "";
     } else {
         stockBar.style.width = "0%";
         stockBar.textContent = "";
