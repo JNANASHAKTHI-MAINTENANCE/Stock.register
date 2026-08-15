@@ -33,10 +33,62 @@
     <div class="card"><span>Total Stock Out</span><b id="totalOut">0</b></div>
     <div class="card low"><span>Low Stock Items</span><b id="lowStock">0</b></div>
   </div>
-  <div class="panel">
-    <h3>Quick Summary</h3>
-    <p id="summary">Add items and stock transactions to begin.</p>
+  <div class="dashboard-grid">
+ <div class="panel">
+    <h3>📊 Stock Overview</h3>
+
+    <div class="overview-stats">
+      <div>
+        <span>Stock In</span>
+        <b id="overviewIn">0</b>
+      </div>
+
+      <div>
+        <span>Stock Out</span>
+        <b id="overviewOut">0</b>
+      </div>
+
+      <div>
+        <span>Current Stock</span>
+        <b id="overviewCurrent">0</b>
+      </div>
+    </div>
+
+    <div class="stock-bar">
+      <div id="stockInBar"></div>
+    </div>
+
+    <div class="bar-labels">
+      <span>Stock In</span>
+      <span>Stock Out</span>
+    </div>
   </div>
+
+  <div class="panel">
+    <h3>📦 Stock Status</h3>
+
+    <div class="status-box">
+      <div class="status-number" id="statusPercent">100%</div>
+      <div>Items In Stock</div>
+    </div>
+
+    <div class="status-row">
+      <span>🟢 In Stock</span>
+      <b id="statusIn">0</b>
+    </div>
+
+    <div class="status-row">
+      <span>🟠 Low Stock</span>
+      <b id="statusLow">0</b>
+    </div>
+  </div>
+
+</div>
+
+<div class="panel">
+  <h3>🕒 Recent Activity</h3>
+  <p id="summary">Add items and stock transactions to begin.</p>
+</div>
 </section>
 
 <section id="items" class="page">
