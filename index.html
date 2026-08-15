@@ -84,6 +84,27 @@
   <input class="search" id="stockSearch" placeholder="Search current stock...">
   <div class="tablewrap"><table><thead><tr><th>Code</th><th>Item</th><th>Unit</th><th>Stock In</th><th>Stock Out</th><th>Balance</th><th>Status</th></tr></thead><tbody id="stockTable"></tbody></table></div>
 </section>
+  <section id="suppliers" class="page">
+  <h2>Suppliers</h2>
+
+  <form id="supplierForm" class="formgrid">
+    <input id="supplierName" placeholder="Supplier Name" required>
+    <input id="supplierContact" placeholder="Contact Number" required>
+    <button type="submit">Add Supplier</button>
+  </form>
+
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Supplier</th>
+          <th>Contact Number</th>
+        </tr>
+      </thead>
+      <tbody id="supplierTable"></tbody>
+    </table>
+  </div>
+</section>
 </main>
 
 <footer>Free local version • Data is stored in this browser</footer>
