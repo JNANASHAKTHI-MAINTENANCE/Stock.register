@@ -303,3 +303,24 @@ footer{
     grid-column:1;
   }
 }
+/* Dashboard Logo */
+.dashboard-logo {
+  width: 100%;
+  text-align: center;
+  margin: 10px auto 20px;
+}
+
+.dashboard-logo img {
+  width: 92%;
+  max-width: 500px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+@media (max-width: 600px) {
+  .dashboard-logo img {
+    width: 92%;
+    max-width: 360px;
+  }
+}
