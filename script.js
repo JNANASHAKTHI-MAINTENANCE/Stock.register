@@ -144,7 +144,25 @@ async function addStockOut() {
   });
 }
 
-async function deleteRecord(table, id) {
+async function addSupplier() {
+  const supplier = {
+    supplier_name: $("#supplierName").value.trim(),
+    contact_number: $("#supplierContact").value.trim()
+  };
+
+  if (!supplier.supplier_name) {
+    alert("Enter Supplier Name");
+    return;
+  }
+
+  await api("suppliers", {
+    method: "POST",
+    body: JSON.stringify(supplier)
+  });
+
+  alert("Supplier added successfully!");
+}
+ async function deleteRecord(table, id) {
   if (!confirm("Delete this record?")) return;
 
   await api(`${table}?id=eq.${id}`, {
