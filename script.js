@@ -196,10 +196,15 @@ async function render() {
 
 const currentStock = totalIn - totalOut;
 
-// Stock Overview
-$("overviewIn").textContent = totalIn;
-$("overviewOut").textContent = totalOut;
-$("overviewCurrent").textContent = currentStock;
+
+// ===== STOCK OVERVIEW =====
+const overviewIn = $("overviewIn");
+const overviewOut = $("overviewOut");
+const overviewCurrent = $("overviewCurrent");
+
+if (overviewIn) overviewIn.textContent = totalIn;
+if (overviewOut) overviewOut.textContent = totalOut;
+if (overviewCurrent) overviewCurrent.textContent = currentStock;
 
 // Count stock status
 let inStockItems = 0;
