@@ -1389,6 +1389,84 @@ if (stockSearch) {
 
 
 /* =========================================
+   ADD PURCHASE
+========================================= */
+
+async function addPurchase(event) {
+    event.preventDefault();
+
+    const purchase = {
+        purchase_date: $("purchaseDate")?.value || "",
+        indent_no: $("indentNo")?.value.trim() || "",
+        po_no: $("poNo")?.value.trim() || "",
+        vendor_name: $("vendorName")?.value.trim() || "",
+        invoice_no: $("invoiceNo")?.value.trim() || "",
+        item: $("purchaseItem")?.value || "",
+        qty: Number($("purchaseQty")?.value) || 0,
+        rate: Number($("purchaseRate")?.value) || 0,
+        total: Number($("purchaseTotal")?.value) || 0
+    };
+
+    if (!purchase.purchase_date) {
+        alert("Please select Purchase Date.");
+        return false;
+    }
+
+    if (!purchase.vendor_name) {
+        alert("Please enter Vendor Name.");
+        return false;
+    }
+
+    if (!purchase.item) {
+        alert("Please select Item.");
+        return false;
+    }
+
+    if (!purchase.qty) {
+        alert("Please enter Quantity.");
+        return false;
+    }
+
+    try {
+        alert("Saving Purchase...");
+
+        const result = await api(
+            "purchases",
+            {
+                method: "POST",
+                body: JSON.stringify(purchase)
+            }
+        );
+
+        console.log("PURCHASE SAVED:", result);
+
+        if ($("purchaseForm")) {
+            $("purchaseForm").reset();
+        }
+
+        if ($("purchaseTotal")) {
+            $("purchaseTotal").value = "";
+        }
+
+        alert("Purchase added successfully!");
+
+        await render();
+
+    } catch (error) {
+        console.error("PURCHASE SAVE ERROR:", error);
+
+        alert(
+            "SAVE ERROR:\n\n" +
+            error.message
+        );
+    }
+
+    return false;
+}
+
+window.addPurchase = addPurchase;
+
+/* =========================================
    PURCHASE CALCULATION
 ========================================= */
 
