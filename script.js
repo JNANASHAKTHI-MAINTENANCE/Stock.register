@@ -4,38 +4,40 @@ const SUPABASE_KEY = "sb_publishable_1F4edoQ47ys5RRfXEGbNEQ_NNb3g3NfW";
 const $ = id => document.getElementById(String(id).replace(/^#/, ""));
 
 async function api(table, options = {}) {
-  if (!SUPABASE_KEY) {
-    throw new Error("Supabase key is missing.");
-  }
+    const url = `${SUPABASE_URL}/rest/v1/${table}`;
 
-  const response = await fetch(
-    `${SUPABASE_URL}/rest/v1/${table}`,
-    {
-      ...options,
-      headers: {
-        apikey: SUPABASE_KEY,
-        "Content-Type": "application/json",
-        Prefer:
-          options.method === "POST"
-            ? "return=representation"
-            : "return=minimal",
-        ...(options.headers || {})
-      }
+    try {
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`,
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                Prefer: options.method === "POST"
+                    ? "return=representation"
+                    : "return=minimal",
+                ...(options.headers || {})
+            }
+        });
+
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(
+                `Supabase ${response.status}: ${text}`
+            );
+        }
+
+        const text = await response.text();
+        return text ? JSON.parse(text) : [];
+
+    } catch (error) {
+        console.error("SUPABASE CONNECTION ERROR:", error);
+        throw error;
     }
-  );
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(
-      `Database error ${response.status}: ${text}`
-    );
-  }
-
-  if (response.status === 204) return [];
-
-  const text = await response.text();
-  return text ? JSON.parse(text) : [];
 }
+
+
 
 function today() {
   return new Date().toISOString().slice(0, 10);
