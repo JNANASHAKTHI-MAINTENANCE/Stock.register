@@ -34,35 +34,36 @@ $("inDate").value = today();
 $("outDate").value = today();
 
 document.querySelectorAll(".tab").forEach(button => {
-  button.addEventListener("click", async function (e) {
+  button.type = "button";
+
+  button.addEventListener("click", function (e) {
     e.preventDefault();
 
-    const tabName = this.getAttribute("data-tab");
+    const tabName = this.dataset.tab;
 
+    // Remove active from all tabs
     document.querySelectorAll(".tab").forEach(tab => {
       tab.classList.remove("active");
     });
 
+    // Hide all pages
     document.querySelectorAll(".page").forEach(page => {
       page.classList.remove("active");
     });
 
+    // Activate clicked tab
     this.classList.add("active");
 
-    const page = $(tabName);
+    // Show matching page
+    const page = document.getElementById(tabName);
 
     if (page) {
       page.classList.add("active");
-    }
-
-    try {
-      await render();
-    } catch (error) {
-      console.error("Tab render error:", error);
+    } else {
+      console.error("Page not found:", tabName);
     }
   });
 });
-
 async function loadItems() {
   return await api(
     "items?select=*&order=id.asc"
