@@ -34,18 +34,33 @@ $("inDate").value = today();
 $("outDate").value = today();
 
 document.querySelectorAll(".tab").forEach(button => {
-  button.onclick = async () => {
+  button.addEventListener("click", async function (e) {
+    e.preventDefault();
 
-    document.querySelectorAll(".tab,.page")
-      .forEach(x => x.classList.remove("active"));
+    const tabName = this.getAttribute("data-tab");
 
-    button.classList.add("active");
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.classList.remove("active");
+    });
 
-    const page = $(button.dataset.tab);
-    if (page) page.classList.add("active");
+    document.querySelectorAll(".page").forEach(page => {
+      page.classList.remove("active");
+    });
 
-    await render();
-  };
+    this.classList.add("active");
+
+    const page = $(tabName);
+
+    if (page) {
+      page.classList.add("active");
+    }
+
+    try {
+      await render();
+    } catch (error) {
+      console.error("Tab render error:", error);
+    }
+  });
 });
 
 async function loadItems() {
