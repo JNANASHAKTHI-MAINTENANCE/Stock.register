@@ -83,20 +83,6 @@ async function loadStockOut() {
 }
 
 async function addItem() {
-  const item = {
-    name: $("itemName").value.trim(),
-    code: $("itemCode").value.trim(),
-    category: $("category").value.trim(),
-    unit: $("unit").value.trim() || "Nos",
-    min_stock: Number($("minStock").value) || 0
-  };
-
-  if (!item.name) {
-    alert("Please enter Item Name");
-    return;
-  }
-
-async function addItem() {
     const item = {
         name: $("itemName").value.trim(),
         code: $("itemCode").value.trim(),
@@ -110,14 +96,22 @@ async function addItem() {
         return;
     }
 
-    await api("items", {
-        method: "POST",
-        body: JSON.stringify(item)
-    });
+    try {
+        await api("items", {
+            method: "POST",
+            body: JSON.stringify(item)
+        });
 
-    await render();
-    document.getElementById("itemForm").reset();
-  }
+        alert("Item saved successfully!");
+
+        document.getElementById("itemForm").reset();
+
+        await render();
+
+    } catch (error) {
+        console.error(error);
+        alert("Unable to save item: " + error.message);
+    }
 }
 
 async function addStockIn() {
