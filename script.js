@@ -159,6 +159,7 @@ async function addItem(event) {
   return false;
 }
 
+window.addItem = addItem;
 
 /* ================================
    STOCK IN
