@@ -99,13 +99,13 @@
 
 <section id="items" class="page">
   <h2>Item Master</h2>
-  <form id="itemForm" class="formgrid" onsubmit="addItem(); return false;">
+  <form id="itemForm" class="formgrid">
     <input id="itemName" placeholder="Item name" required>
     <input id="itemCode" placeholder="Item code">
     <input id="category" placeholder="Category">
     <input id="unit" placeholder="Unit (Nos, Kg, Mtr)" value="Nos">
     <input id="minStock" type="number" min="0" placeholder="Minimum stock" value="0">
-    <button type="submit">Add Item</button>
+    <button type="button" onclick="addItem(event)">Add Item</button>
   </form>
   <input class="search" id="itemSearch" placeholder="Search items...">
   <div class="tablewrap"><table><thead><tr><th>Code</th><th>Item</th><th>Category</th><th>Unit</th><th>Min</th><th>Action</th></tr></thead><tbody id="itemTable"></tbody></table></div>
