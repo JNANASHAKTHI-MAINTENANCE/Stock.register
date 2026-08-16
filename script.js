@@ -1,952 +1,1477 @@
-const SUPABASE_URL = "https://ebmyetdambrcsypudppt.supabase.co";
-const SUPABASE_KEY = "sb_publishable_IF4edoQ47ys5RRfxEGBnEQ_NnBg3NfW";
+const SUPABASE_URL = "https://ebmyetdambrcsydppt.supabase.co";
+const SUPABASE_KEY = "sb_publishable_1F4edoQ47ys5RRfXEGbNEQ_NNb3g3NfW";
 
-const $ = id => document.getElementById(id.replace(/^#/, ""));
+const $ = id => document.getElementById(String(id).replace(/^#/, ""));
 
 async function api(table, options = {}) {
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
-    ...options,
-    headers: {
-      "apikey": SUPABASE_KEY,
-      "Authorization": `Bearer ${SUPABASE_KEY}`,
-      "Content-Type": "application/json",
-      "Prefer": options.method === "POST"
-        ? "return=representation"
-        : "return=minimal",
-      ...(options.headers || {})
+  if (!SUPABASE_KEY) {
+    throw new Error("Supabase key is missing.");
+  }
+
+  const response = await fetch(
+    `${SUPABASE_URL}/rest/v1/${table}`,
+    {
+      ...options,
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        "Content-Type": "application/json",
+        Prefer:
+          options.method === "POST"
+            ? "return=representation"
+            : "return=minimal",
+        ...(options.headers || {})
+      }
     }
-  });
+  );
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(text || `Database error ${response.status}`);
+    throw new Error(
+      `Database error ${response.status}: ${text}`
+    );
   }
 
   if (response.status === 204) return [];
-  return await response.json();
+
+  const text = await response.text();
+  return text ? JSON.parse(text) : [];
 }
 
 function today() {
   return new Date().toISOString().slice(0, 10);
 }
 
-$("inDate").value = today();
-$("outDate").value = today();
-
-document.querySelectorAll(".tab").forEach(button => {
-  button.type = "button";
-
-  button.addEventListener("click", function (e) {
-    e.preventDefault();
-
-    const tabName = this.dataset.tab;
-
-    // Remove active from all tabs
-    document.querySelectorAll(".tab").forEach(tab => {
-      tab.classList.remove("active");
-    });
-
-    // Hide all pages
-    document.querySelectorAll(".page").forEach(page => {
-      page.classList.remove("active");
-    });
-
-    // Activate clicked tab
-    this.classList.add("active");
-
-    // Show matching page
-    const page = document.getElementById(tabName);
-
-    if (page) {
-      page.classList.add("active");
-    } else {
-      console.error("Page not found:", tabName);
-    }
-  });
-});
 async function loadItems() {
-  return await api(
-    "items?select=*&order=id.asc"
-  );
+  return api("items?select=*&order=id.asc");
 }
 
 async function loadStockIn() {
-  return await api(
+  return api(
     "stock_in?select=*&order=date.desc,id.desc"
   );
 }
 
 async function loadStockOut() {
-  return await api(
+  return api(
     "stock_out?select=*&order=date.desc,id.desc"
   );
 }
 
+async function loadSuppliers() {
+  return api(
+    "suppliers?select=*&order=id.asc"
+  );
+}
+
+function itemName(items, id) {
+  const item = items.find(
+    x => String(x.id) === String(id)
+  );
+
+  return item ? item.name : "-";
+}
+
+function itemOptions(items) {
+  return (
+    `<option value="">Select Item</option>` +
+    items
+      .map(
+        item =>
+          `<option value="${item.id}">${
+            item.name || ""
+          }${
+            item.code
+              ? " - " + item.code
+              : ""
+          }</option>`
+      )
+      .join("")
+  );
+}
+
+
+/* ================================
+   ADD ITEM
+================================ */
+
 async function addItem(event) {
-    if (event) event.preventDefault();
 
-    const item = {
-        name: $("itemName").value.trim(),
-        code: $("itemCode").value.trim(),
-        category: $("category").value.trim(),
-        unit: $("unit").value.trim() || "Nos",
-        min_stock: Number($("minStock").value) || 0
-    };
+  if (event) {
+    event.preventDefault();
+  }
 
-    if (!item.name) {
-        alert("Please enter Item Name");
-        return false;
+  const item = {
+    name: $("itemName")?.value.trim() || "",
+    code: $("itemCode")?.value.trim() || "",
+    category: $("category")?.value.trim() || "",
+    unit: $("unit")?.value.trim() || "Nos",
+    min_stock:
+      Number($("minStock")?.value) || 0
+  };
+
+  if (!item.name) {
+    alert("Please enter Item Name.");
+    return false;
+  }
+
+  try {
+
+    alert("Saving Item...");
+
+    const result = await api(
+      "items",
+      {
+        method: "POST",
+        body: JSON.stringify(item)
+      }
+    );
+
+    console.log("ITEM SAVED:", result);
+
+    if ($("itemForm")) {
+      $("itemForm").reset();
     }
 
-    try {
-        console.log("Saving item:", item);
-
-        const result = await api("items", {
-            method: "POST",
-            body: JSON.stringify(item)
-        });
-
-        console.log("Saved successfully:", result);
-
-        alert("Item saved successfully!");
-
-        document.getElementById("itemForm").reset();
-
-        await render();
-
-    } catch (error) {
-        console.error("SAVE ITEM ERROR:", error);
-        alert("Unable to save item:\n" + error.message);
+    if ($("unit")) {
+      $("unit").value = "Nos";
     }
+
+    alert("Item saved successfully!");
+
+    await render();
+
+  } catch (error) {
+
+    console.error(
+      "ITEM SAVE ERROR:",
+      error
+    );
+
+    alert(
+      "SAVE ERROR:\n\n" +
+      error.message
+    );
+
+    /* DO NOT CLEAR FORM */
+  }
+
+  return false;
+}
+
+
+/* ================================
+   STOCK IN
+================================ */
+
+async function addStockIn(event) {
+
+  if (event) {
+    event.preventDefault();
+  }
+
+  const itemId =
+    Number($("inItem")?.value);
+
+  const qty =
+    Number($("inQty")?.value);
+
+  if (!itemId || qty < 1) {
+
+    alert(
+      "Please select item and enter quantity."
+    );
 
     return false;
-}
+  }
 
-window.addItem = addItem;
+  const record = {
 
-async function addStockIn() {
-  const itemId = Number($("inItem").value);
-  const qty = Number($("inQty").value);
+    date:
+      $("inDate")?.value ||
+      today(),
+
+    item_id: itemId,
+
+    qty: qty,
+
+    supplier:
+      $("supplier")?.value.trim() ||
+      "",
+
+    invoice:
+      $("invoice")?.value.trim() ||
+      ""
+  };
+
+  try {
+
+    alert("Saving Stock In...");
+
+    await api(
+      "stock_in",
+      {
+        method: "POST",
+        body: JSON.stringify(record)
+      }
+    );
+
+    if ($("inForm")) {
+      $("inForm").reset();
+    }
+
+    if ($("inDate")) {
+      $("inDate").value = today();
+    }
+
+    alert(
+      "Stock In saved successfully!"
+    );
+
+    await render();
+
+  } catch (error) {
+
+    console.error(
+      "STOCK IN ERROR:",
+      error
+    );
+
+    alert(
+      "SAVE ERROR:\n\n" +
+      error.message
+    );
+  }
+
+  return false;
+    }
+
+/* ================================
+   STOCK OUT
+================================ */
+
+async function addStockOut(event) {
+
+  if (event) {
+    event.preventDefault();
+  }
+
+  const itemId =
+    Number($("outItem")?.value);
+
+  const qty =
+    Number($("outQty")?.value);
 
   if (!itemId || qty < 1) {
-    alert("Please select item and enter quantity");
-    return;
+
+    alert(
+      "Please select item and enter quantity."
+    );
+
+    return false;
   }
 
-  await api("stock_in", {
-    method: "POST",
-    body: JSON.stringify({
-      date: $("inDate").value,
+  try {
+
+    /* Check current stock first */
+
+    const stockIn = await api(
+      `stock_in?select=qty&item_id=eq.${itemId}`
+    );
+
+    const stockOut = await api(
+      `stock_out?select=qty&item_id=eq.${itemId}`
+    );
+
+    const totalIn =
+      stockIn.reduce(
+        (sum, row) =>
+          sum + Number(row.qty || 0),
+        0
+      );
+
+    const totalOut =
+      stockOut.reduce(
+        (sum, row) =>
+          sum + Number(row.qty || 0),
+        0
+      );
+
+    const balance =
+      totalIn - totalOut;
+
+    if (qty > balance) {
+
+      alert(
+        "Not enough stock.\n\n" +
+        "Current stock: " +
+        balance
+      );
+
+      return false;
+    }
+
+    const record = {
+
+      date:
+        $("outDate")?.value ||
+        today(),
+
       item_id: itemId,
+
       qty: qty,
-      supplier: $("supplier").value.trim(),
-      invoice: $("invoice").value.trim()
-    })
-  });
+
+      issued_to:
+        $("issuedTo")?.value.trim() ||
+        "",
+
+      work_order:
+        $("workOrder")?.value.trim() ||
+        ""
+    };
+
+    alert("Saving Stock Out...");
+
+    await api(
+      "stock_out",
+      {
+        method: "POST",
+        body: JSON.stringify(record)
+      }
+    );
+
+    if ($("outForm")) {
+      $("outForm").reset();
+    }
+
+    if ($("outDate")) {
+      $("outDate").value = today();
+    }
+
+    alert(
+      "Stock Out saved successfully!"
+    );
+
+    await render();
+
+  } catch (error) {
+
+    console.error(
+      "STOCK OUT ERROR:",
+      error
+    );
+
+    alert(
+      "SAVE ERROR:\n\n" +
+      error.message
+    );
+  }
+
+  return false;
 }
 
-async function addStockOut() {
-  const itemId = Number($("outItem").value);
-  const qty = Number($("outQty").value);
 
-  if (!itemId || qty < 1) {
-    alert("Please select item and enter quantity");
-    return;
+/* ================================
+   ADD SUPPLIER
+================================ */
+
+async function addSupplier(event) {
+
+  if (event) {
+    event.preventDefault();
   }
 
-  const ins = await api(
-    `stock_in?item_id=eq.${itemId}&select=qty`
-  );
-
-  const outs = await api(
-    `stock_out?item_id=eq.${itemId}&select=qty`
-  );
-
-  const totalIn = ins.reduce((sum, x) => sum + Number(x.qty || 0), 0);
-  const totalOut = outs.reduce((sum, x) => sum + Number(x.qty || 0), 0);
-  const balance = totalIn - totalOut;
-
-  if (qty > balance) {
-    alert(`Not enough stock.\nCurrent balance: ${balance}`);
-    return;
-  }
-
-  await api("stock_out", {
-    method: "POST",
-    body: JSON.stringify({
-      date: $("outDate").value,
-      item_id: itemId,
-      qty: qty,
-      issued_to: $("issuedTo").value.trim(),
-      work_order: $("workOrder").value.trim()
-    })
-  });
-}
-
-async function addSupplier() {
   const supplier = {
-  supplier_name: document.getElementById("supplierName").value.trim(),
-  contact_number: document.getElementById("supplierContact").value.trim()
-};
+
+    supplier_name:
+      $("supplierName")?.value.trim() ||
+      "",
+
+    contact_number:
+      $("supplierContact")?.value.trim() ||
+      ""
+  };
 
   if (!supplier.supplier_name) {
-    alert("Enter Supplier Name");
+
+    alert(
+      "Please enter Supplier Name."
+    );
+
+    return false;
+  }
+
+  try {
+
+    alert("Saving Supplier...");
+
+    await api(
+      "suppliers",
+      {
+        method: "POST",
+        body: JSON.stringify(supplier)
+      }
+    );
+
+    if ($("supplierForm")) {
+      $("supplierForm").reset();
+    }
+
+    alert(
+      "Supplier added successfully!"
+    );
+
+    await render();
+
+  } catch (error) {
+
+    console.error(
+      "SUPPLIER ERROR:",
+      error
+    );
+
+    alert(
+      "SAVE ERROR:\n\n" +
+      error.message
+    );
+  }
+
+  return false;
+}
+
+
+/* ================================
+   DELETE RECORD
+================================ */
+
+async function deleteRecord(
+  table,
+  id
+) {
+
+  if (
+    !confirm(
+      "Delete this record?"
+    )
+  ) {
     return;
   }
 
-  await api("suppliers", {
-    method: "POST",
-    body: JSON.stringify(supplier)
+  try {
+
+    await api(
+      `${table}?id=eq.${id}`,
+      {
+        method: "DELETE"
+      }
+    );
+
+    alert(
+      "Record deleted successfully!"
+    );
+
+    await render();
+
+  } catch (error) {
+
+    console.error(
+      "DELETE ERROR:",
+      error
+    );
+
+    alert(
+      "DELETE ERROR:\n\n" +
+      error.message
+    );
+  }
+}
+
+
+/* ================================
+   TAB SWITCHING
+================================ */
+
+document
+  .querySelectorAll(".tab")
+  .forEach(button => {
+
+    button.type = "button";
+
+    button.addEventListener(
+      "click",
+      function(event) {
+
+        event.preventDefault();
+
+        document
+          .querySelectorAll(".tab")
+          .forEach(tab =>
+            tab.classList.remove(
+              "active"
+            )
+          );
+
+        document
+          .querySelectorAll(".page")
+          .forEach(page =>
+            page.classList.remove(
+              "active"
+            )
+          );
+
+        this.classList.add("active");
+
+        const page =
+          document.getElementById(
+            this.dataset.tab
+          );
+
+        if (page) {
+          page.classList.add("active");
+        }
+      }
+    );
   });
 
-  alert("Supplier added successfully!");
-}
- async function deleteRecord(table, id) {
-  if (!confirm("Delete this record?")) return;
 
-  await api(`${table}?id=eq.${id}`, {
-    method: "DELETE"
-  });
+/* ================================
+   FORM EVENT CONNECTIONS
+================================ */
 
-  await render();
-}
+document.addEventListener(
+  "DOMContentLoaded",
+  function() {
+
+    if ($("inDate")) {
+      $("inDate").value = today();
+    }
+
+    if ($("outDate")) {
+      $("outDate").value = today();
+    }
+
+    const itemForm =
+      $("itemForm");
+
+    if (itemForm) {
+      itemForm.addEventListener(
+        "submit",
+        addItem
+      );
+    }
+
+    const inForm =
+      $("inForm");
+
+    if (inForm) {
+      inForm.addEventListener(
+        "submit",
+        addStockIn
+      );
+    }
+
+    const outForm =
+      $("outForm");
+
+    if (outForm) {
+      outForm.addEventListener(
+        "submit",
+        addStockOut
+      );
+    }
+
+    const supplierForm =
+      $("supplierForm");
+
+    if (supplierForm) {
+      supplierForm.addEventListener(
+        "submit",
+        addSupplier
+      );
+    }
+
+    render();
+  }
+);
+/* ================================
+   MAIN RENDER
+================================ */
 
 async function render() {
+
   try {
-    const [items, ins, outs] = await Promise.all([
+
+    const [
+      items,
+      stockIn,
+      stockOut,
+      suppliers
+    ] = await Promise.all([
       loadItems(),
       loadStockIn(),
-      loadStockOut()
+      loadStockOut(),
+      loadSuppliers()
     ]);
 
-    // =========================
-    // DASHBOARD TOTALS
-    // =========================
-
-    const totalIn = ins.reduce(
-      (sum, x) => sum + Number(x.qty || 0),
-      0
-    );
-
-    const totalOut = outs.reduce(
-      (sum, x) => sum + Number(x.qty || 0),
-      0
-    );
-
-    const currentStock = totalIn - totalOut;
-
-    const totalItems = $("#totalItems");
-    const totalInEl = $("#totalIn");
-    const totalOutEl = $("#totalOut");
-    const overviewIn = $("#overviewIn");
-    const overviewOut = $("#overviewOut");
-    const overviewCurrent = $("#overviewCurrent");
-
-    if (totalItems)
-      totalItems.textContent = items.length;
-
-    if (totalInEl)
-      totalInEl.textContent = totalIn;
-
-    if (totalOutEl)
-      totalOutEl.textContent = totalOut;
-
-    if (overviewIn)
-      overviewIn.textContent = totalIn;
-
-    if (overviewOut)
-      overviewOut.textContent = totalOut;
-
-    if (overviewCurrent)
-      overviewCurrent.textContent = currentStock;
+    console.log("Items:", items);
+    console.log("Stock In:", stockIn);
+    console.log("Stock Out:", stockOut);
+    console.log("Suppliers:", suppliers);
 
 
-    // =========================
-    // STOCK STATUS
-    // =========================
+    /* ================================
+       DASHBOARD TOTALS
+    ================================= */
+
+    const totalIn =
+      stockIn.reduce(
+        (sum, row) =>
+          sum + Number(row.qty || 0),
+        0
+      );
+
+    const totalOut =
+      stockOut.reduce(
+        (sum, row) =>
+          sum + Number(row.qty || 0),
+        0
+      );
+
+    const currentStock =
+      totalIn - totalOut;
+
+
+    const totalItems =
+      $("totalItems");
+
+    const totalInEl =
+      $("totalIn");
+
+    const totalOutEl =
+      $("totalOut");
+
+    const overviewIn =
+      $("overviewIn");
+
+    const overviewOut =
+      $("overviewOut");
+
+    const overviewCurrent =
+      $("overviewCurrent");
+
+
+    if (totalItems) {
+      totalItems.textContent =
+        items.length;
+    }
+
+    if (totalInEl) {
+      totalInEl.textContent =
+        totalIn;
+    }
+
+    if (totalOutEl) {
+      totalOutEl.textContent =
+        totalOut;
+    }
+
+    if (overviewIn) {
+      overviewIn.textContent =
+        totalIn;
+    }
+
+    if (overviewOut) {
+      overviewOut.textContent =
+        totalOut;
+    }
+
+    if (overviewCurrent) {
+      overviewCurrent.textContent =
+        currentStock;
+    }
+
+
+    /* ================================
+       ITEM DROPDOWNS
+    ================================= */
+
+    const options =
+      itemOptions(items);
+
+
+    const inItem =
+      $("inItem");
+
+    const outItem =
+      $("outItem");
+
+    const purchaseItem =
+      $("purchaseItem");
+
+
+    if (inItem) {
+      inItem.innerHTML =
+        options;
+    }
+
+    if (outItem) {
+      outItem.innerHTML =
+        options;
+    }
+
+    if (purchaseItem) {
+      purchaseItem.innerHTML =
+        options;
+    }
+
+
+    /* ================================
+       ITEM MASTER TABLE
+    ================================= */
+
+    const itemTable =
+      $("itemTable");
+
+    if (itemTable) {
+
+      const search =
+        (
+          $("itemSearch")?.value ||
+          ""
+        ).toLowerCase();
+
+      itemTable.innerHTML =
+        items
+
+          .filter(item => {
+
+            const text =
+              `${item.name || ""} ${
+                item.code || ""
+              } ${
+                item.category || ""
+              }`.toLowerCase();
+
+            return text.includes(search);
+          })
+
+          .map(item => {
+
+            return `
+              <tr>
+
+                <td>
+                  ${item.code || "-"}
+                </td>
+
+                <td>
+                  ${item.name || "-"}
+                </td>
+
+                <td>
+                  ${item.category || "-"}
+                </td>
+
+                <td>
+                  ${item.unit || "Nos"}
+                </td>
+
+                <td>
+                  ${item.min_stock || 0}
+                </td>
+
+                <td>
+                  <button
+                    type="button"
+                    class="delete"
+                    onclick="deleteRecord('items', ${item.id})">
+                    Delete
+                  </button>
+                </td>
+
+              </tr>
+            `;
+
+          })
+
+          .join("");
+    }
+
+
+    /* ================================
+       STOCK IN TABLE
+    ================================= */
+
+    const inTable =
+      $("inTable");
+
+    if (inTable) {
+
+      inTable.innerHTML =
+        stockIn
+
+          .map(row => {
+
+            return `
+              <tr>
+
+                <td>
+                  ${row.date || "-"}
+                </td>
+
+                <td>
+                  ${itemName(
+                    items,
+                    row.item_id
+                  )}
+                </td>
+
+                <td>
+                  ${row.qty || 0}
+                </td>
+
+                <td>
+                  ${row.supplier || "-"}
+                </td>
+
+                <td>
+                  ${row.invoice || "-"}
+                </td>
+
+                <td>
+                  <button
+                    type="button"
+                    class="delete"
+                    onclick="deleteRecord(
+                      'stock_in',
+                      ${row.id}
+                    )">
+                    Delete
+                  </button>
+                </td>
+
+              </tr>
+            `;
+
+          })
+
+          .join("");
+    }
+
+
+    /* ================================
+       STOCK OUT TABLE
+    ================================= */
+
+    const outTable =
+      $("outTable");
+
+    if (outTable) {
+
+      outTable.innerHTML =
+        stockOut
+
+          .map(row => {
+
+            return `
+              <tr>
+
+                <td>
+                  ${row.date || "-"}
+                </td>
+
+                <td>
+                  ${itemName(
+                    items,
+                    row.item_id
+                  )}
+                </td>
+
+                <td>
+                  ${row.qty || 0}
+                </td>
+
+                <td>
+                  ${row.issued_to || "-"}
+                </td>
+
+                <td>
+                  ${row.work_order || "-"}
+                </td>
+
+                <td>
+                  <button
+                    type="button"
+                    class="delete"
+                    onclick="deleteRecord(
+                      'stock_out',
+                      ${row.id}
+                    )">
+                    Delete
+                  </button>
+                </td>
+
+              </tr>
+            `;
+
+          })
+
+          .join("");
+    }
+
+
+    /* ================================
+       CURRENT STOCK TABLE
+    ================================= */
+
+    const stockTable =
+      $("stockTable");
+
+    let lowCount = 0;
+
+
+    if (stockTable) {
+
+      stockTable.innerHTML =
+        items
+
+          .map(item => {
+
+            const itemIn =
+              stockIn
+
+                .filter(row =>
+                  Number(row.item_id) ===
+                  Number(item.id)
+                )
+
+                .reduce(
+                  (sum, row) =>
+                    sum +
+                    Number(row.qty || 0),
+                  0
+                );
+
+
+            const itemOut =
+              stockOut
+
+                .filter(row =>
+                  Number(row.item_id) ===
+                  Number(item.id)
+                )
+
+                .reduce(
+                  (sum, row) =>
+                    sum +
+                    Number(row.qty || 0),
+                  0
+                );
+
+
+            const balance =
+              itemIn - itemOut;
+
+
+            const minimum =
+              Number(
+                item.min_stock || 0
+              );
+
+
+            const isLow =
+              balance <= minimum;
+
+
+            if (isLow) {
+              lowCount++;
+            }
+
+
+            return `
+              <tr>
+
+                <td>
+                  ${item.code || "-"}
+                </td>
+
+                <td>
+                  ${item.name || "-"}
+                </td>
+
+                <td>
+                  ${item.unit || "Nos"}
+                </td>
+
+                <td>
+                  ${itemIn}
+                </td>
+
+                <td>
+                  ${itemOut}
+                </td>
+
+                <td>
+                  <b>${balance}</b>
+                </td>
+
+                <td>
+                  ${
+                    isLow
+                      ? "⚠️ LOW"
+                      : "OK"
+                  }
+                </td>
+
+              </tr>
+            `;
+
+          })
+
+          .join("");
+    }
+
+
+    /* ================================
+       LOW STOCK COUNT
+    ================================= */
+
+    const lowStock =
+      $("lowStock");
+
+    if (lowStock) {
+      lowStock.textContent =
+        lowCount;
+    }
+
+
+    /* ================================
+       STOCK STATUS
+    ================================= */
 
     let inStockItems = 0;
-    let lowStockItems = 0;
 
     items.forEach(item => {
 
-      const itemIn = ins
-        .filter(x =>
-          String(x.item_id) === String(item.id)
-        )
-        .reduce(
-          (sum, x) => sum + Number(x.qty || 0),
-          0
-        );
+      const itemIn =
+        stockIn
 
-      const itemOut = outs
-        .filter(x =>
-          String(x.item_id) === String(item.id)
-        )
-        .reduce(
-          (sum, x) => sum + Number(x.qty || 0),
-          0
-        );
+          .filter(row =>
+            Number(row.item_id) ===
+            Number(item.id)
+          )
 
-      const balance = itemIn - itemOut;
-      const minimum = Number(item.min_stock || 0);
+          .reduce(
+            (sum, row) =>
+              sum +
+              Number(row.qty || 0),
+            0
+          );
+
+
+      const itemOut =
+        stockOut
+
+          .filter(row =>
+            Number(row.item_id) ===
+            Number(item.id)
+          )
+
+          .reduce(
+            (sum, row) =>
+              sum +
+              Number(row.qty || 0),
+            0
+          );
+
+
+      const balance =
+        itemIn - itemOut;
+
 
       if (balance > 0) {
         inStockItems++;
       }
 
-      if (balance <= minimum) {
-        lowStockItems++;
-      }
     });
 
-    const statusIn = $("#statusIn");
-    const statusLow = $("#statusLow");
-    const statusPercent = $("#statusPercent");
 
-    if (statusIn)
-      statusIn.textContent = inStockItems;
+    const statusIn =
+      $("statusIn");
 
-    if (statusLow)
-      statusLow.textContent = lowStockItems;
+    const statusLow =
+      $("statusLow");
+
+    const statusPercent =
+      $("statusPercent");
+
+
+    if (statusIn) {
+      statusIn.textContent =
+        inStockItems;
+    }
+
+    if (statusLow) {
+      statusLow.textContent =
+        lowCount;
+    }
+
 
     const stockPercent =
       items.length > 0
-        ? Math.round((inStockItems / items.length) * 100)
+        ? Math.round(
+            (
+              inStockItems /
+              items.length
+            ) * 100
+          )
         : 0;
 
-    if (statusPercent)
-      statusPercent.textContent = stockPercent + "%";
+
+    if (statusPercent) {
+      statusPercent.textContent =
+        stockPercent + "%";
+    }
 
 
-    // =========================
-    // STOCK BAR
-    // =========================
+    /* ================================
+       STOCK BAR
+    ================================= */
 
-    const stockBar = $("#stockInBar");
+    const stockBar =
+      $("stockInBar");
 
     if (stockBar) {
 
-      const total = totalIn + totalOut;
+      const total =
+        totalIn + totalOut;
 
       if (total > 0) {
 
-        const inPercent =
-          Math.round((totalIn / total) * 100);
+        const percentage =
+          Math.round(
+            (totalIn / total) * 100
+          );
 
-        stockBar.style.width = inPercent + "%";
-        stockBar.textContent = inPercent + "%";
+        stockBar.style.width =
+          percentage + "%";
+
+        stockBar.textContent =
+          percentage + "%";
 
       } else {
 
-        stockBar.style.width = "0%";
-        stockBar.textContent = "";
+        stockBar.style.width =
+          "0%";
+
+        stockBar.textContent =
+          "";
       }
     }
 
 
-    // =========================
-    // ITEM DROPDOWNS
-    // =========================
+    /* ================================
+       DASHBOARD SUMMARY
+    ================================= */
 
-    const itemOptions =
-      '<option value="">Select Item</option>' +
-
-      items.map(item => `
-        <option value="${item.id}">
-          ${item.name}${item.code ? " - " + item.code : ""}
-        </option>
-      `).join("");
-
-    const purchaseItem = $("#purchaseItem");
-    const inItem = $("#inItem");
-    const outItem = $("#outItem");
-
-    if (purchaseItem)
-      purchaseItem.innerHTML = itemOptions;
-
-    if (inItem)
-      inItem.innerHTML = itemOptions;
-
-    if (outItem)
-      outItem.innerHTML = itemOptions;
-
-
-    // =========================
-    // ITEM MASTER TABLE
-    // =========================
-
-    const itemSearchEl = $("#itemSearch");
-
-    const itemSearch =
-      itemSearchEl?.value?.toLowerCase() || "";
-
-    const itemTable = $("#itemTable");
-
-    if (itemTable) {
-
-      itemTable.innerHTML = items
-
-        .filter(item =>
-          `${item.name || ""} ${item.code || ""} ${item.category || ""}`
-            .toLowerCase()
-            .includes(itemSearch)
-        )
-
-        .map(item => `
-          <tr>
-            <td>${item.code || ""}</td>
-            <td>${item.name || ""}</td>
-            <td>${item.category || ""}</td>
-            <td>${item.unit || "Nos"}</td>
-            <td>${item.min_stock || 0}</td>
-            <td>
-              <button
-                class="delete"
-                onclick="deleteRecord('items',${item.id})">
-                Delete
-              </button>
-            </td>
-          </tr>
-        `).join("");
-    }
-
-
-    // =========================
-    // STOCK IN TABLE
-    // =========================
-
-    const inTable = $("#inTable");
-
-    if (inTable) {
-
-      inTable.innerHTML = ins.map(x => `
-        <tr>
-          <td>${x.date || ""}</td>
-          <td>${itemName(items, x.item_id)}</td>
-          <td>${x.qty || 0}</td>
-          <td>${x.supplier || ""}</td>
-          <td>${x.invoice || ""}</td>
-          <td>
-            <button
-              class="delete"
-              onclick="deleteRecord('stock_in',${x.id})">
-              Delete
-            </button>
-          </td>
-        </tr>
-      `).join("");
-    }
-
-
-    // =========================
-    // STOCK OUT TABLE
-    // =========================
-
-    const outTable = $("#outTable");
-
-    if (outTable) {
-
-      outTable.innerHTML = outs.map(x => `
-        <tr>
-          <td>${x.date || ""}</td>
-          <td>${itemName(items, x.item_id)}</td>
-          <td>${x.qty || 0}</td>
-          <td>${x.issued_to || ""}</td>
-          <td>${x.work_order || ""}</td>
-          <td>
-            <button
-              class="delete"
-              onclick="deleteRecord('stock_out',${x.id})">
-              Delete
-            </button>
-          </td>
-        </tr>
-      `).join("");
-    }
-
-
-    // =========================
-    // CURRENT STOCK TABLE
-    // =========================
-
-    const stockSearchEl = $("#stockSearch");
-
-    const stockSearch =
-      stockSearchEl?.value?.toLowerCase() || "";
-
-    const stockTable = $("#stockTable");
-
-    let lowCount = 0;
-
-    if (stockTable) {
-
-      stockTable.innerHTML = items
-
-        .filter(item =>
-          `${item.name || ""} ${item.code || ""}`
-            .toLowerCase()
-            .includes(stockSearch)
-        )
-
-        .map(item => {
-
-          const inQty = ins
-            .filter(x =>
-              Number(x.item_id) === Number(item.id)
-            )
-            .reduce(
-              (sum, x) => sum + Number(x.qty || 0),
-              0
-            );
-
-          const outQty = outs
-            .filter(x =>
-              Number(x.item_id) === Number(item.id)
-            )
-            .reduce(
-              (sum, x) => sum + Number(x.qty || 0),
-              0
-            );
-
-          const balance = inQty - outQty;
-          const minimum = Number(item.min_stock || 0);
-          const low = balance <= minimum;
-
-          if (low)
-            lowCount++;
-
-          return `
-            <tr>
-              <td>${item.code || ""}</td>
-              <td>${item.name || ""}</td>
-              <td>${item.unit || "Nos"}</td>
-              <td>${inQty}</td>
-              <td>${outQty}</td>
-              <td><b>${balance}</b></td>
-              <td>${low ? "⚠️ LOW" : "OK"}</td>
-            </tr>
-          `;
-
-        }).join("");
-    }
-
-
-    // =========================
-    // LOW STOCK COUNT
-    // =========================
-
-    const lowStock = $("#lowStock");
-
-    if (lowStock)
-      lowStock.textContent = lowCount;
-
-
-    // =========================
-    // DASHBOARD SUMMARY
-    // =========================
-
-    const summary = $("#summary");
+    const summary =
+      $("summary");
 
     if (summary) {
 
-      summary.textContent =
-        items.length > 0
-          ? `${items.length} item(s) registered. ` +
-            `${lowCount} item(s) need attention for low stock.`
-          : "No items registered yet.";
+      if (items.length === 0) {
+
+        summary.textContent =
+          "No items registered yet.";
+
+      } else {
+
+        summary.textContent =
+          `${items.length} item(s) registered. ` +
+          `${lowCount} item(s) need attention for low stock.`;
+      }
     }
 
 
-    // =========================
-    // REFRESH PURCHASE TOTAL
-    // =========================
+    /* ================================
+       SUPPLIER TABLE
+    ================================= */
 
-    const purchaseQty = $("#purchaseQty");
-    const purchaseRate = $("#purchaseRate");
-    const purchaseTotal = $("#purchaseTotal");
+    const supplierTable =
+      $("supplierTable");
 
-    if (purchaseQty && purchaseRate && purchaseTotal) {
+    if (supplierTable) {
 
-      const qty = Number(purchaseQty.value || 0);
-      const rate = Number(purchaseRate.value || 0);
+      supplierTable.innerHTML =
+        suppliers
 
-      purchaseTotal.value =
-        (qty * rate).toFixed(2);
+          .map(supplier => {
+
+            return `
+              <tr>
+
+                <td>
+                  ${
+                    supplier.supplier_name ||
+                    "-"
+                  }
+                </td>
+
+                <td>
+                  ${
+                    supplier.contact_number ||
+                    "-"
+                  }
+                </td>
+
+                <td>
+                  <button
+                    type="button"
+                    class="delete"
+                    onclick="deleteRecord(
+                      'suppliers',
+                      ${supplier.id}
+                    )">
+                    Delete
+                  </button>
+                </td>
+
+              </tr>
+            `;
+
+          })
+
+          .join("");
     }
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      "RENDER ERROR:",
+      error
+    );
 
     alert(
-      "Cannot load Supabase data.\n\n" +
+      "Unable to load database data:\n\n" +
       error.message
     );
   }
-            }
-
-    $("totalItems").textContent = items.length;
-
-    const totalIn = ins.reduce(
-      (sum, x) => sum + Number(x.qty || 0), 0
-    );
-
-    const totalOut = outs.reduce(
-      (sum, x) => sum + Number(x.qty || 0), 0
-    );
-
-    $("totalIn").textContent = totalIn;
-    $("totalOut").textContent = totalOut;
-// ===== PROFESSIONAL DASHBOARD =====
-
-const currentStock = totalIn - totalOut;
-
-
-// ===== STOCK OVERVIEW =====
-const overviewIn = $("overviewIn");
-const overviewOut = $("overviewOut");
-const overviewCurrent = $("overviewCurrent");
-
-if (overviewIn) overviewIn.textContent = totalIn;
-if (overviewOut) overviewOut.textContent = totalOut;
-if (overviewCurrent) overviewCurrent.textContent = currentStock;
-
-// Count stock status
-let inStockItems = 0;
-let lowStockItems = 0;
-
-items.forEach(item => {
-    const itemIn = ins
-        .filter(x => String(x.item_id) === String(item.id))
-        .reduce((sum, x) => sum + Number(x.qty || 0), 0);
-
-    const itemOut = outs
-        .filter(x => String(x.item_id) === String(item.id))
-        .reduce((sum, x) => sum + Number(x.qty || 0), 0);
-
-    const balance = itemIn - itemOut;
-    const minimum = Number(item.min_stock || 0);
-
-    if (balance > 0) {
-        inStockItems++;
-    }
-
-    if (balance <= minimum) {
-        lowStockItems++;
-    }
-});
-
-// Stock Status
-$("statusIn").textContent = inStockItems;
-$("statusLow").textContent = lowStockItems;
-
-// Percentage of items in stock
-const stockPercent = items.length
-    ? Math.round((inStockItems / items.length) * 100)
-    : 0;
-
-$("statusPercent").textContent = stockPercent + "%";
-
-// ===== STOCK BAR =====
-const stockBar = $("stockInBar");
-
-if (stockBar) {
-    const total = totalIn + totalOut;
-
-    if (total > 0) {
-        const inPercent = Math.round((totalIn / total) * 100);
-
-        stockBar.style.width = inPercent + "%";
-        stockBar.textContent = "";
-    } else {
-        stockBar.style.width = "0%";
-        stockBar.textContent = "";
-    }
-}$("#purchaseItem").innerHTML =
-  `<option value="">Select Item</option>` +
-  items.map(item =>
-    `<option value="${item.id}">
-      ${item.name}${item.code ? " - " + item.code : ""}
-    </option>`
-  ).join("");
-    
-    $("inItem").innerHTML = items.map(item =>
-      `<option value="${item.id}">
-        ${item.name}${item.code ? " - " + item.code : ""}
-      </option>`
-    ).join("");
-$("#purchaseItem").innerHTML =
-  `<option value="">Select Item</option>` +
-  items.map(item =>
-    `<option value="${item.id}">
-      ${item.name}${item.code ? " - " + item.code : ""}
-    </option>`
-  ).join("");
-    $("outItem").innerHTML = $("inItem").innerHTML;
-
-    const itemSearch =
-      ($("itemSearch").value || "").toLowerCase();
-
-    $("itemTable").innerHTML = items
-      .filter(item =>
-        `${item.name} ${item.code || ""} ${item.category || ""}`
-          .toLowerCase()
-          .includes(itemSearch)
-      )
-      .map(item => `
-        <tr>
-          <td>${item.code || ""}</td>
-          <td>${item.name}</td>
-          <td>${item.category || ""}</td>
-          <td>${item.unit || "Nos"}</td>
-          <td>${item.min_stock || 0}</td>
-          <td>
-            <button class="delete"
-              onclick="deleteRecord('items',${item.id})">
-              Delete
-            </button>
-          </td>
-        </tr>
-      `).join("");
-
-    $("inTable").innerHTML = ins.map(x => `
-      <tr>
-        <td>${x.date || ""}</td>
-        <td>${itemName(items, x.item_id)}</td>
-        <td>${x.qty || 0}</td>
-        <td>${x.supplier || ""}</td>
-        <td>${x.invoice || ""}</td>
-        <td>
-          <button class="delete"
-            onclick="deleteRecord('stock_in',${x.id})">
-            Delete
-          </button>
-        </td>
-      </tr>
-    `).join("");
-
-    $("outTable").innerHTML = outs.map(x => `
-      <tr>
-        <td>${x.date || ""}</td>
-        <td>${itemName(items, x.item_id)}</td>
-        <td>${x.qty || 0}</td>
-        <td>${x.issued_to || ""}</td>
-        <td>${x.work_order || ""}</td>
-        <td>
-          <button class="delete"
-            onclick="deleteRecord('stock_out',${x.id})">
-            Delete
-          </button>
-        </td>
-      </tr>
-    `).join("");
-
-    const stockSearch =
-      ($("stockSearch").value || "").toLowerCase();
-
-    let lowCount = 0;
-
-    $("stockTable").innerHTML = items
-      .filter(item =>
-        `${item.name} ${item.code || ""}`
-          .toLowerCase()
-          .includes(stockSearch)
-      )
-      .map(item => {
-        const inQty = ins
-          .filter(x => Number(x.item_id) === Number(item.id))
-          .reduce((sum, x) => sum + Number(x.qty || 0), 0);
-
-        const outQty = outs
-          .filter(x => Number(x.item_id) === Number(item.id))
-          .reduce((sum, x) => sum + Number(x.qty || 0), 0);
-
-        const balance = inQty - outQty;
-        const minimum = Number(item.min_stock || 0);
-        const low = balance <= minimum;
-
-        if (low) lowCount++;
-
-        return `
-          <tr>
-            <td>${item.code || ""}</td>
-            <td>${item.name}</td>
-            <td>${item.unit || "Nos"}</td>
-            <td>${inQty}</td>
-            <td>${outQty}</td>
-            <td><b>${balance}</b></td>
-            <td>${low ? "⚠️ LOW" : "OK"}</td>
-          </tr>
-        `;
-      }).join("");
-
-    $("lowStock").textContent = lowCount;
-
-    $("summary").textContent =
-      items.length
-        ? `${items.length} item(s) registered. ${lowCount} item(s) need attention for low stock.`
-        : "Add items and stock transactions to begin.";
-
-  } catch (error) {
-    console.error(error);
-    alert("Cannot load Supabase data.\n\n" + error.message);
-  }
 }
+
+/* =========================================
+   SUPPLIER LOADER
+========================================= */
+
+async function loadSuppliers() {
+  return await api(
+    "suppliers?select=*&order=id.asc"
+  );
+}
+
+
+/* =========================================
+   ITEM DROPDOWN HELPER
+========================================= */
+
+function itemOptions(items) {
+
+  return `
+    <option value="">
+      Select Item
+    </option>
+
+    ${items.map(item => `
+      <option value="${item.id}">
+        ${item.name || ""}${
+          item.code
+            ? " - " + item.code
+            : ""
+        }
+      </option>
+    `).join("")}
+  `;
+}
+
+
+/* =========================================
+   GET ITEM NAME
+========================================= */
 
 function itemName(items, id) {
-  const item = items.find(
-    x => Number(x.id) === Number(id)
-  );
 
-  return item ? item.name : "Deleted item";
+  const item =
+    items.find(
+      x => Number(x.id) === Number(id)
+    );
+
+  if (!item) {
+    return "-";
+  }
+
+  return item.name || "-";
 }
 
-$("itemForm").onsubmit = async e => {
-  e.preventDefault();
+
+/* =========================================
+   DELETE RECORD
+========================================= */
+
+async function deleteRecord(table, id) {
+
+  if (!confirm("Delete this record?")) {
+    return;
+  }
 
   try {
-    await addItem();
 
-    e.target.reset();
-    $("unit").value = "Nos";
+    await api(
+      `${table}?id=eq.${id}`,
+      {
+        method: "DELETE"
+      }
+    );
+
+    alert("Deleted successfully.");
 
     await render();
 
-    alert("Item added successfully!");
   } catch (error) {
-    alert("Could not add item.\n\n" + error.message);
+
+    console.error(
+      "DELETE ERROR:",
+      error
+    );
+
+    alert(
+      "Unable to delete:\n\n" +
+      error.message
+    );
   }
-};
+}
 
-$("inForm").onsubmit = async e => {
-  e.preventDefault();
 
-  try {
-    await addStockIn();
+/* =========================================
+   SEARCH ITEM MASTER
+========================================= */
 
-    e.target.reset();
-    $("inDate").value = today();
+const itemSearch =
+  $("itemSearch");
 
-    await render();
+if (itemSearch) {
 
-    alert("Stock In added successfully!");
-  } catch (error) {
-    alert("Could not add Stock In.\n\n" + error.message);
-  }
-};
-
-$("outForm").onsubmit = async e => {
-  e.preventDefault();
-
-  try {
-    await addStockOut();
-
-    e.target.reset();
-    $("outDate").value = today();
-
-    await render();
-
-    alert("Stock Out added successfully!");
-  } catch (error) {
-    alert("Could not add Stock Out.\n\n" + error.message);
-  }
-};
-
-["itemSearch", "stockSearch"].forEach(id => {
-  $(id).oninput = render;
-});
-
-$("clearBtn").onclick = async () => {
-  if (!confirm("Delete ALL stock register data?")) return;
-
-  try {
-    await api("stock_out?id=not.is.null", {
-      method: "DELETE"
-    });
-
-    await api("stock_in?id=not.is.null", {
-      method: "DELETE"
-    });
-
-    await api("items?id=not.is.null", {
-      method: "DELETE"
-    });
-
-    await render();
-
-    alert("All data cleared.");
-  } catch (error) {
-    alert("Could not clear data.\n\n" + error.message);
-  }
-};
-
-$("supplierForm").onsubmit = async e => {
-  e.preventDefault();
-
-  try {
-    await addSupplier();
-    e.target.reset();
-    await render();
-    alert("Supplier added successfully!");
-  } catch (error) {
-    alert("Could not add Supplier.\n\n" + error.message);
-  }
-};
-// ===== PURCHASE FORM =====
-
-$("#purchaseRate").oninput = () => {
-  const qty = Number($("#purchaseQty").value || 0);
-  const rate = Number($("#purchaseRate").value || 0);
-
-  $("#purchaseTotal").value = (qty * rate).toFixed(2);
-};
-
-$("#purchaseQty").oninput = () => {
-  const qty = Number($("#purchaseQty").value || 0);
-  const rate = Number($("#purchaseRate").value || 0);
-
-  $("#purchaseTotal").value = (qty * rate).toFixed(2);
-};
-
-$("#purchaseForm").onsubmit = async e => {
-  e.preventDefault();
-
-  try {
-    const purchase = {
-      date: $("#purchaseDate").value,
-      indent_no: $("#indentNo").value.trim(),
-      po_no: $("#poNo").value.trim(),
-      vendor_name: $("#vendorName").value.trim(),
-      invoice_no: $("#invoiceNo").value.trim(),
-      item_id: Number($("#purchaseItem").value),
-      qty: Number($("#purchaseQty").value),
-      rate: Number($("#purchaseRate").value),
-      total: Number($("#purchaseTotal").value)
-    };
-
-    if (!purchase.item_id || purchase.qty < 1 || purchase.rate < 0) {
-      alert("Please select item, quantity and rate.");
-      return;
+  itemSearch.addEventListener(
+    "input",
+    function () {
+      render();
     }
+  );
+}
 
-    await api("purchases", {
-      method: "POST",
-      body: JSON.stringify(purchase)
-    });
 
-    e.target.reset();
+/* =========================================
+   SEARCH CURRENT STOCK
+========================================= */
 
-    $("#purchaseDate").value = today();
-    $("#purchaseTotal").value = "";
+const stockSearch =
+  $("stockSearch");
 
-    await render();
+if (stockSearch) {
 
-    alert("Purchase added successfully!");
+  stockSearch.addEventListener(
+    "input",
+    function () {
+      render();
+    }
+  );
+}
 
-  } catch (error) {
-    alert("Could not add Purchase.\n\n" + error.message);
+
+/* =========================================
+   PURCHASE CALCULATION
+========================================= */
+
+const purchaseQty =
+  $("purchaseQty");
+
+const purchaseRate =
+  $("purchaseRate");
+
+const purchaseTotal =
+  $("purchaseTotal");
+
+
+function calculatePurchaseTotal() {
+
+  if (
+    !purchaseQty ||
+    !purchaseRate ||
+    !purchaseTotal
+  ) {
+    return;
   }
-};
 
-render();
+  const qty =
+    Number(purchaseQty.value) || 0;
+
+  const rate =
+    Number(purchaseRate.value) || 0;
+
+  purchaseTotal.value =
+    (qty * rate).toFixed(2);
+}
+
+
+if (purchaseQty) {
+
+  purchaseQty.addEventListener(
+    "input",
+    calculatePurchaseTotal
+  );
+}
+
+
+if (purchaseRate) {
+
+  purchaseRate.addEventListener(
+    "input",
+    calculatePurchaseTotal
+  );
+}
+
+
+/* =========================================
+   CLEAR FORM ONLY AFTER SUCCESS
+========================================= */
+
+const itemForm =
+  $("itemForm");
+
+if (itemForm) {
+
+  itemForm.addEventListener(
+    "submit",
+    function (event) {
+      event.preventDefault();
+      addItem(event);
+    }
+  );
+
+}
+
+
+/* =========================================
+   PAGE START
+========================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
+
+    console.log(
+      "JNANASHAKTHI MAINTENANCE loaded"
+    );
+
+    render();
+
+  }
+);
