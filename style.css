@@ -75,8 +75,9 @@ main{
   display:none;
 }
 
-.page.active{
-  display:block;
+.page.active {
+  display: block !important;
+  }
 }
 
 h2{
