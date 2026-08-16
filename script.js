@@ -14,7 +14,6 @@ async function api(table, options = {}) {
       ...options,
       headers: {
         apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
         "Content-Type": "application/json",
         Prefer:
           options.method === "POST"
