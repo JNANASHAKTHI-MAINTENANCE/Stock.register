@@ -82,7 +82,9 @@ async function loadStockOut() {
   );
 }
 
-async function addItem() {
+async function addItem(event) {
+    if (event) event.preventDefault();
+
     const item = {
         name: $("itemName").value.trim(),
         code: $("itemCode").value.trim(),
@@ -93,7 +95,7 @@ async function addItem() {
 
     if (!item.name) {
         alert("Please enter Item Name");
-        return;
+        return false;
     }
 
     try {
@@ -104,7 +106,7 @@ async function addItem() {
             body: JSON.stringify(item)
         });
 
-        console.log("Item saved:", result);
+        console.log("Saved successfully:", result);
 
         alert("Item saved successfully!");
 
@@ -114,9 +116,10 @@ async function addItem() {
 
     } catch (error) {
         console.error("SAVE ITEM ERROR:", error);
-
         alert("Unable to save item:\n" + error.message);
     }
+
+    return false;
 }
 
 window.addItem = addItem;
