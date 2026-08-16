@@ -181,6 +181,373 @@ async function render() {
       loadStockOut()
     ]);
 
+    // =========================
+    // DASHBOARD TOTALS
+    // =========================
+
+    const totalIn = ins.reduce(
+      (sum, x) => sum + Number(x.qty || 0),
+      0
+    );
+
+    const totalOut = outs.reduce(
+      (sum, x) => sum + Number(x.qty || 0),
+      0
+    );
+
+    const currentStock = totalIn - totalOut;
+
+    const totalItems = $("#totalItems");
+    const totalInEl = $("#totalIn");
+    const totalOutEl = $("#totalOut");
+    const overviewIn = $("#overviewIn");
+    const overviewOut = $("#overviewOut");
+    const overviewCurrent = $("#overviewCurrent");
+
+    if (totalItems)
+      totalItems.textContent = items.length;
+
+    if (totalInEl)
+      totalInEl.textContent = totalIn;
+
+    if (totalOutEl)
+      totalOutEl.textContent = totalOut;
+
+    if (overviewIn)
+      overviewIn.textContent = totalIn;
+
+    if (overviewOut)
+      overviewOut.textContent = totalOut;
+
+    if (overviewCurrent)
+      overviewCurrent.textContent = currentStock;
+
+
+    // =========================
+    // STOCK STATUS
+    // =========================
+
+    let inStockItems = 0;
+    let lowStockItems = 0;
+
+    items.forEach(item => {
+
+      const itemIn = ins
+        .filter(x =>
+          String(x.item_id) === String(item.id)
+        )
+        .reduce(
+          (sum, x) => sum + Number(x.qty || 0),
+          0
+        );
+
+      const itemOut = outs
+        .filter(x =>
+          String(x.item_id) === String(item.id)
+        )
+        .reduce(
+          (sum, x) => sum + Number(x.qty || 0),
+          0
+        );
+
+      const balance = itemIn - itemOut;
+      const minimum = Number(item.min_stock || 0);
+
+      if (balance > 0) {
+        inStockItems++;
+      }
+
+      if (balance <= minimum) {
+        lowStockItems++;
+      }
+    });
+
+    const statusIn = $("#statusIn");
+    const statusLow = $("#statusLow");
+    const statusPercent = $("#statusPercent");
+
+    if (statusIn)
+      statusIn.textContent = inStockItems;
+
+    if (statusLow)
+      statusLow.textContent = lowStockItems;
+
+    const stockPercent =
+      items.length > 0
+        ? Math.round((inStockItems / items.length) * 100)
+        : 0;
+
+    if (statusPercent)
+      statusPercent.textContent = stockPercent + "%";
+
+
+    // =========================
+    // STOCK BAR
+    // =========================
+
+    const stockBar = $("#stockInBar");
+
+    if (stockBar) {
+
+      const total = totalIn + totalOut;
+
+      if (total > 0) {
+
+        const inPercent =
+          Math.round((totalIn / total) * 100);
+
+        stockBar.style.width = inPercent + "%";
+        stockBar.textContent = inPercent + "%";
+
+      } else {
+
+        stockBar.style.width = "0%";
+        stockBar.textContent = "";
+      }
+    }
+
+
+    // =========================
+    // ITEM DROPDOWNS
+    // =========================
+
+    const itemOptions =
+      '<option value="">Select Item</option>' +
+
+      items.map(item => `
+        <option value="${item.id}">
+          ${item.name}${item.code ? " - " + item.code : ""}
+        </option>
+      `).join("");
+
+    const purchaseItem = $("#purchaseItem");
+    const inItem = $("#inItem");
+    const outItem = $("#outItem");
+
+    if (purchaseItem)
+      purchaseItem.innerHTML = itemOptions;
+
+    if (inItem)
+      inItem.innerHTML = itemOptions;
+
+    if (outItem)
+      outItem.innerHTML = itemOptions;
+
+
+    // =========================
+    // ITEM MASTER TABLE
+    // =========================
+
+    const itemSearchEl = $("#itemSearch");
+
+    const itemSearch =
+      itemSearchEl?.value?.toLowerCase() || "";
+
+    const itemTable = $("#itemTable");
+
+    if (itemTable) {
+
+      itemTable.innerHTML = items
+
+        .filter(item =>
+          `${item.name || ""} ${item.code || ""} ${item.category || ""}`
+            .toLowerCase()
+            .includes(itemSearch)
+        )
+
+        .map(item => `
+          <tr>
+            <td>${item.code || ""}</td>
+            <td>${item.name || ""}</td>
+            <td>${item.category || ""}</td>
+            <td>${item.unit || "Nos"}</td>
+            <td>${item.min_stock || 0}</td>
+            <td>
+              <button
+                class="delete"
+                onclick="deleteRecord('items',${item.id})">
+                Delete
+              </button>
+            </td>
+          </tr>
+        `).join("");
+    }
+
+
+    // =========================
+    // STOCK IN TABLE
+    // =========================
+
+    const inTable = $("#inTable");
+
+    if (inTable) {
+
+      inTable.innerHTML = ins.map(x => `
+        <tr>
+          <td>${x.date || ""}</td>
+          <td>${itemName(items, x.item_id)}</td>
+          <td>${x.qty || 0}</td>
+          <td>${x.supplier || ""}</td>
+          <td>${x.invoice || ""}</td>
+          <td>
+            <button
+              class="delete"
+              onclick="deleteRecord('stock_in',${x.id})">
+              Delete
+            </button>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+
+    // =========================
+    // STOCK OUT TABLE
+    // =========================
+
+    const outTable = $("#outTable");
+
+    if (outTable) {
+
+      outTable.innerHTML = outs.map(x => `
+        <tr>
+          <td>${x.date || ""}</td>
+          <td>${itemName(items, x.item_id)}</td>
+          <td>${x.qty || 0}</td>
+          <td>${x.issued_to || ""}</td>
+          <td>${x.work_order || ""}</td>
+          <td>
+            <button
+              class="delete"
+              onclick="deleteRecord('stock_out',${x.id})">
+              Delete
+            </button>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+
+    // =========================
+    // CURRENT STOCK TABLE
+    // =========================
+
+    const stockSearchEl = $("#stockSearch");
+
+    const stockSearch =
+      stockSearchEl?.value?.toLowerCase() || "";
+
+    const stockTable = $("#stockTable");
+
+    let lowCount = 0;
+
+    if (stockTable) {
+
+      stockTable.innerHTML = items
+
+        .filter(item =>
+          `${item.name || ""} ${item.code || ""}`
+            .toLowerCase()
+            .includes(stockSearch)
+        )
+
+        .map(item => {
+
+          const inQty = ins
+            .filter(x =>
+              Number(x.item_id) === Number(item.id)
+            )
+            .reduce(
+              (sum, x) => sum + Number(x.qty || 0),
+              0
+            );
+
+          const outQty = outs
+            .filter(x =>
+              Number(x.item_id) === Number(item.id)
+            )
+            .reduce(
+              (sum, x) => sum + Number(x.qty || 0),
+              0
+            );
+
+          const balance = inQty - outQty;
+          const minimum = Number(item.min_stock || 0);
+          const low = balance <= minimum;
+
+          if (low)
+            lowCount++;
+
+          return `
+            <tr>
+              <td>${item.code || ""}</td>
+              <td>${item.name || ""}</td>
+              <td>${item.unit || "Nos"}</td>
+              <td>${inQty}</td>
+              <td>${outQty}</td>
+              <td><b>${balance}</b></td>
+              <td>${low ? "⚠️ LOW" : "OK"}</td>
+            </tr>
+          `;
+
+        }).join("");
+    }
+
+
+    // =========================
+    // LOW STOCK COUNT
+    // =========================
+
+    const lowStock = $("#lowStock");
+
+    if (lowStock)
+      lowStock.textContent = lowCount;
+
+
+    // =========================
+    // DASHBOARD SUMMARY
+    // =========================
+
+    const summary = $("#summary");
+
+    if (summary) {
+
+      summary.textContent =
+        items.length > 0
+          ? `${items.length} item(s) registered. ` +
+            `${lowCount} item(s) need attention for low stock.`
+          : "No items registered yet.";
+    }
+
+
+    // =========================
+    // REFRESH PURCHASE TOTAL
+    // =========================
+
+    const purchaseQty = $("#purchaseQty");
+    const purchaseRate = $("#purchaseRate");
+    const purchaseTotal = $("#purchaseTotal");
+
+    if (purchaseQty && purchaseRate && purchaseTotal) {
+
+      const qty = Number(purchaseQty.value || 0);
+      const rate = Number(purchaseRate.value || 0);
+
+      purchaseTotal.value =
+        (qty * rate).toFixed(2);
+    }
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      "Cannot load Supabase data.\n\n" +
+      error.message
+    );
+  }
+            }
+
     $("totalItems").textContent = items.length;
 
     const totalIn = ins.reduce(
