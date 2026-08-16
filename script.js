@@ -96,10 +96,28 @@ async function addItem() {
     return;
   }
 
-  await api("items", {
-    method: "POST",
-    body: JSON.stringify(item)
-  });
+async function addItem() {
+    const item = {
+        name: $("itemName").value.trim(),
+        code: $("itemCode").value.trim(),
+        category: $("category").value.trim(),
+        unit: $("unit").value.trim() || "Nos",
+        min_stock: Number($("minStock").value) || 0
+    };
+
+    if (!item.name) {
+        alert("Please enter Item Name");
+        return;
+    }
+
+    await api("items", {
+        method: "POST",
+        body: JSON.stringify(item)
+    });
+
+    await render();
+    document.getElementById("itemForm").reset();
+  }
 }
 
 async function addStockIn() {
