@@ -257,13 +257,26 @@ if (stockBar) {
         stockBar.style.width = "0%";
         stockBar.textContent = "";
     }
-}
+}$("#purchaseItem").innerHTML =
+  `<option value="">Select Item</option>` +
+  items.map(item =>
+    `<option value="${item.id}">
+      ${item.name}${item.code ? " - " + item.code : ""}
+    </option>`
+  ).join("");
+    
     $("inItem").innerHTML = items.map(item =>
       `<option value="${item.id}">
         ${item.name}${item.code ? " - " + item.code : ""}
       </option>`
     ).join("");
-
+$("#purchaseItem").innerHTML =
+  `<option value="">Select Item</option>` +
+  items.map(item =>
+    `<option value="${item.id}">
+      ${item.name}${item.code ? " - " + item.code : ""}
+    </option>`
+  ).join("");
     $("outItem").innerHTML = $("inItem").innerHTML;
 
     const itemSearch =
