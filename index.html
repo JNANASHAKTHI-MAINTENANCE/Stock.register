@@ -232,5 +232,27 @@
 
 <footer>Free local version • Data is stored in this browser</footer>
 <script src="script.js"></script>
+<script>
+document.querySelectorAll(".tab").forEach(function(button) {
+    button.addEventListener("click", function() {
+
+        document.querySelectorAll(".tab").forEach(function(tab) {
+            tab.classList.remove("active");
+        });
+
+        document.querySelectorAll(".page").forEach(function(page) {
+            page.classList.remove("active");
+        });
+
+        this.classList.add("active");
+
+        const page = document.getElementById(this.dataset.tab);
+
+        if (page) {
+            page.classList.add("active");
+        }
+    });
+});
+</script>
 </body>
 </html>
