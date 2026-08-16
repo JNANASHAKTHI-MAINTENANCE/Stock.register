@@ -97,10 +97,14 @@ async function addItem() {
     }
 
     try {
-        await api("items", {
+        console.log("Saving item:", item);
+
+        const result = await api("items", {
             method: "POST",
             body: JSON.stringify(item)
         });
+
+        console.log("Item saved:", result);
 
         alert("Item saved successfully!");
 
@@ -109,10 +113,13 @@ async function addItem() {
         await render();
 
     } catch (error) {
-        console.error(error);
-        alert("Unable to save item: " + error.message);
+        console.error("SAVE ITEM ERROR:", error);
+
+        alert("Unable to save item:\n" + error.message);
     }
 }
+
+window.addItem = addItem;
 
 async function addStockIn() {
   const itemId = Number($("inItem").value);
