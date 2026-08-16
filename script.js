@@ -1,7 +1,7 @@
 const SUPABASE_URL = "https://ebmyetdambrcsypudppt.supabase.co";
 const SUPABASE_KEY = "sb_publishable_IF4edoQ47ys5RRfxEGBnEQ_NnBg3NfW";
 
-const $ = id => document.getElementById(id);
+const $ = id => document.getElementById(id.replace(/^#/, ""));
 
 async function api(table, options = {}) {
   const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
@@ -34,7 +34,8 @@ $("inDate").value = today();
 $("outDate").value = today();
 
 document.querySelectorAll(".tab").forEach(button => {
-  button.onclick = () => {
+  button.onclick = async () => {
+
     document.querySelectorAll(".tab,.page")
       .forEach(x => x.classList.remove("active"));
 
@@ -43,7 +44,7 @@ document.querySelectorAll(".tab").forEach(button => {
     const page = $(button.dataset.tab);
     if (page) page.classList.add("active");
 
-    render();
+    await render();
   };
 });
 
