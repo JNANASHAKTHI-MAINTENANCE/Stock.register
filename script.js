@@ -474,4 +474,60 @@ $("supplierForm").onsubmit = async e => {
     alert("Could not add Supplier.\n\n" + error.message);
   }
 };
+// ===== PURCHASE FORM =====
+
+$("#purchaseRate").oninput = () => {
+  const qty = Number($("#purchaseQty").value || 0);
+  const rate = Number($("#purchaseRate").value || 0);
+
+  $("#purchaseTotal").value = (qty * rate).toFixed(2);
+};
+
+$("#purchaseQty").oninput = () => {
+  const qty = Number($("#purchaseQty").value || 0);
+  const rate = Number($("#purchaseRate").value || 0);
+
+  $("#purchaseTotal").value = (qty * rate).toFixed(2);
+};
+
+$("#purchaseForm").onsubmit = async e => {
+  e.preventDefault();
+
+  try {
+    const purchase = {
+      date: $("#purchaseDate").value,
+      indent_no: $("#indentNo").value.trim(),
+      po_no: $("#poNo").value.trim(),
+      vendor_name: $("#vendorName").value.trim(),
+      invoice_no: $("#invoiceNo").value.trim(),
+      item_id: Number($("#purchaseItem").value),
+      qty: Number($("#purchaseQty").value),
+      rate: Number($("#purchaseRate").value),
+      total: Number($("#purchaseTotal").value)
+    };
+
+    if (!purchase.item_id || purchase.qty < 1 || purchase.rate < 0) {
+      alert("Please select item, quantity and rate.");
+      return;
+    }
+
+    await api("purchases", {
+      method: "POST",
+      body: JSON.stringify(purchase)
+    });
+
+    e.target.reset();
+
+    $("#purchaseDate").value = today();
+    $("#purchaseTotal").value = "";
+
+    await render();
+
+    alert("Purchase added successfully!");
+
+  } catch (error) {
+    alert("Could not add Purchase.\n\n" + error.message);
+  }
+};
+
 render();
