@@ -1537,7 +1537,17 @@ if (itemForm) {
   );
 
 }
+const purchaseForm = $("purchaseForm");
 
+if (purchaseForm) {
+    purchaseForm.addEventListener(
+        "submit",
+        function(event) {
+            event.preventDefault();
+            addPurchase(event);
+        }
+    );
+}
 
 /* =========================================
    PAGE START
