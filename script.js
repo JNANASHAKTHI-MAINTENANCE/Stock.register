@@ -627,6 +627,7 @@ async function render() {
     console.log("Stock In:", stockIn);
     console.log("Stock Out:", stockOut);
     console.log("Suppliers:", suppliers);
+    console.log("Purchases:", purchases);
 
 
     /* ================================
