@@ -1413,7 +1413,6 @@ async function addPurchase(event) {
         item_id: Number($("purchaseItem")?.value || 0),
         qty: Number($("purchaseQty")?.value) || 0,
         rate: Number($("purchaseRate")?.value) || 0,
-        total: Number($("purchaseTotal")?.value) || 0
     };
 
     if (!purchase.purchase_date) {
