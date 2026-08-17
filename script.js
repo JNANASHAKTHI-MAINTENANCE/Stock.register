@@ -1445,7 +1445,22 @@ async function addPurchase(event) {
                 body: JSON.stringify(purchase)
             }
         );
+// AUTOMATIC STOCK IN FROM PURCHASE
+const stockInRecord = {
+  date: purchase.purchase_date,
+  item_id: purchase.item_id,
+  qty: purchase.qty,
+  supplier: purchase.vendor_name,
+  invoice: purchase.invoice_no
+};
 
+await api(
+  "stock_in",
+  {
+    method: "POST",
+    body: JSON.stringify(stockInRecord)
+  }
+);
         console.log("PURCHASE SAVED:", result);
 
         if ($("purchaseForm")) {
