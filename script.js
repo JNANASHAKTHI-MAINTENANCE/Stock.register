@@ -1410,7 +1410,7 @@ async function addPurchase(event) {
         po_no: $("poNo")?.value.trim() || "",
         vendor_name: $("vendorName")?.value.trim() || "",
         invoice_no: $("invoiceNo")?.value.trim() || "",
-        item: $("purchaseItem")?.value || "",
+        item_id: $("#purchaseItem")?.value || "",
         qty: Number($("purchaseQty")?.value) || 0,
         rate: Number($("purchaseRate")?.value) || 0,
         total: Number($("purchaseTotal")?.value) || 0
