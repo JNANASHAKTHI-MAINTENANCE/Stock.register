@@ -1426,9 +1426,9 @@ async function addPurchase(event) {
         return false;
     }
 
-    if (!purchase.item) {
-        alert("Please select Item.");
-        return false;
+    if (!purchase.item_id) {
+    alert("Please select Item.");
+    return false;
     }
 
     if (!purchase.qty) {
