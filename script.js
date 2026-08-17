@@ -65,6 +65,12 @@ async function loadSuppliers() {
   );
 }
 
+async function loadPurchases() {
+    return api(
+        "purchases?select=*&order=purchase_date.desc,id.desc"
+        
+    );
+}
 function itemName(items, id) {
   const item = items.find(
     x => String(x.id) === String(id)
