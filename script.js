@@ -610,16 +610,18 @@ async function render() {
   try {
 
     const [
-      items,
-      stockIn,
-      stockOut,
-      suppliers
-    ] = await Promise.all([
-      loadItems(),
-      loadStockIn(),
-      loadStockOut(),
-      loadSuppliers()
-    ]);
+    items,
+    stockIn,
+    stockOut,
+    suppliers,
+    purchases
+] = await Promise.all([
+    loadItems(),
+    loadStockIn(),
+    loadStockOut(),
+    loadSuppliers(),
+    loadPurchases()
+]);
 
     console.log("Items:", items);
     console.log("Stock In:", stockIn);
