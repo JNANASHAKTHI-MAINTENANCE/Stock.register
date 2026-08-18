@@ -1,5 +1,4 @@
-
-  ""const SUPABASE_URL = "https://ebmyetdambrcsypudppt.supabase.co";
+const SUPABASE_URL = "https://ebmyetdambrcsypudppt.supabase.co";
 const SUPABASE_KEY = "sb_publishable_IF4edoQ47ys5RRfxEGBnEQ_NnBg3NfW";
 
 const $ = id => document.getElementById(String(id).replace(/^#/, ""));
