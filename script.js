@@ -846,8 +846,9 @@ async function render() {
                 </td>
 
                 <td>
-                  ${row.invoice || "-"}
+                  ${row.invoice_no || "-"}
                 </td>
+        
 
                 <td>
                   <button
