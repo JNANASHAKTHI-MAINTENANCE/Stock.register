@@ -1,4 +1,6 @@
-const SUPABASE_URL = "https://ebmyetdambrcsypudppt.supabase.co";
+invoice_no:
+  $("#invoice")?.value.trim() ||
+  ""const SUPABASE_URL = "https://ebmyetdambrcsypudppt.supabase.co";
 const SUPABASE_KEY = "sb_publishable_IF4edoQ47ys5RRfxEGBnEQ_NnBg3NfW";
 
 const $ = id => document.getElementById(String(id).replace(/^#/, ""));
@@ -207,9 +209,9 @@ async function addStockIn(event) {
       $("supplier")?.value.trim() ||
       "",
 
-    invoice:
-      $("invoice")?.value.trim() ||
-      ""
+    invoice_no:
+  $("#invoice")?.value.trim() ||
+  ""
   };
 
   try {
