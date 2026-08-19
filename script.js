@@ -334,9 +334,13 @@ async function addStockOut(event) {
         "",
 
       work_order:
-        $("workOrder")?.value.trim() ||
-        ""
-    };
+$("#workOrder")?.value.trim() ||
+  "",
+
+issue_type:
+  $("#issueType")?.value ||
+  "Normal Issue"
+};
 
     alert("Saving Stock Out...");
 
