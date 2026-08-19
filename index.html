@@ -198,13 +198,26 @@
     <input id="issuedTo" placeholder="Issued to">
     <input id="workOrder" placeholder="Work / Job No.">
     
-    <select id="issueType" required>
-  <option value="Normal Issue">Normal Issue</option>
-  <option value="Replace / Repair">Replace / Repair</option>
-  <option value="Dump / Damage">Dump / Damage</option>
-    </select>
-    
-    <button type="submit">Issue Stock</button>
+    <div class="issue-dropdown">
+  <button type="button" class="issue-btn">
+    Issue Stock ▾
+  </button>
+
+  <div class="issue-menu">
+    <button type="submit" name="issueType" value="Normal Issue">
+      Normal Issue
+    </button>
+
+    <button type="submit" name="issueType" value="Replace / Repair">
+      Replace / Repair
+    </button>
+
+    <button type="submit" name="issueType" value="Dump / Damage">
+      Dump / Damage
+    </button>
+  </div>
+</div>
+  
   </form>
   <div class="tablewrap"><table><thead><tr><th>Date</th><th>Item</th><th>Qty</th><th>Issued To</th><th>Work</th><th>Action</th></tr></thead><tbody id="outTable"></tbody></table></div>
 </section>
