@@ -197,6 +197,13 @@
     <input id="outQty" type="number" min="1" placeholder="Quantity" required>
     <input id="issuedTo" placeholder="Issued to">
     <input id="workOrder" placeholder="Work / Job No.">
+    
+    <select id="issueType" required>
+  <option value="Normal Issue">Normal Issue</option>
+  <option value="Replace / Repair">Replace / Repair</option>
+  <option value="Dump / Damage">Dump / Damage</option>
+    </select>
+    
     <button type="submit">Issue Stock</button>
   </form>
   <div class="tablewrap"><table><thead><tr><th>Date</th><th>Item</th><th>Qty</th><th>Issued To</th><th>Work</th><th>Action</th></tr></thead><tbody id="outTable"></tbody></table></div>
