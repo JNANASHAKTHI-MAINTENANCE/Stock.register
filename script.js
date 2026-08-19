@@ -1565,6 +1565,154 @@ if (purchaseForm) {
         }
     );
 }
+/* ==========================================
+   PURCHASE REPORT
+========================================== */
+
+function renderPurchaseReport(list = purchases) {
+
+    const table = $("purchaseReportTable");
+
+    if (!table) return;
+
+    if (!list || list.length === 0) {
+        table.innerHTML = `
+            <tr>
+                <td colspan="9" style="text-align:center;">
+                    No purchase records found
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    table.innerHTML = list.map(row => `
+        <tr>
+            <td>${row.purchase_date || "-"}</td>
+            <td>${row.indent_no || "-"}</td>
+            <td>${row.po_no || "-"}</td>
+            <td>${row.vendor_name || "-"}</td>
+            <td>${row.invoice_no || "-"}</td>
+            <td>${itemName(items, row.item_id)}</td>
+            <td>${row.qty || 0}</td>
+            <td>${Number(row.rate || 0).toFixed(2)}</td>
+            <td>${Number(row.total || 0).toFixed(2)}</td>
+        </tr>
+    `).join("");
+}
+/* ==========================================
+   PURCHASE REPORT SEARCH
+========================================== */
+
+const searchPurchaseReport = $("searchPurchaseReport");
+
+if (searchPurchaseReport) {
+
+    searchPurchaseReport.addEventListener("click", function () {
+
+        const from = $("reportFrom")?.value || "";
+        const to = $("reportTo")?.value || "";
+
+        let result = purchases;
+
+        if (from) {
+            result = result.filter(row =>
+                row.purchase_date >= from
+            );
+        }
+
+        if (to) {
+            result = result.filter(row =>
+                row.purchase_date <= to
+            );
+        }
+
+        renderPurchaseReport(result);
+    });
+}
+/* ==========================================
+   PURCHASE REPORT PRINT
+========================================== */
+
+const printPurchaseReport = $("printPurchaseReport");
+
+if (printPurchaseReport) {
+
+    printPurchaseReport.addEventListener("click", function () {
+
+        const report = $("purchaseReportTable");
+
+        if (!report) return;
+
+        const printWindow = window.open("", "_blank");
+
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>JNANASHAKTHI MAINTENANCE - Purchase Report</title>
+
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        padding: 20px;
+                    }
+
+                    h2 {
+                        text-align: center;
+                    }
+
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                    }
+
+                    th, td {
+                        border: 1px solid #333;
+                        padding: 8px;
+                        text-align: center;
+                    }
+
+                    th {
+                        background: #eee;
+                    }
+                </style>
+            </head>
+
+            <body>
+
+                <h2>JNANASHAKTHI MAINTENANCE</h2>
+                <h3 style="text-align:center;">
+                    PURCHASE REPORT
+                </h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Indent No.</th>
+                            <th>PO No.</th>
+                            <th>Vendor</th>
+                            <th>Invoice</th>
+                            <th>Item</th>
+                            <th>Qty</th>
+                            <th>Rate</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        ${report.innerHTML}
+                    </tbody>
+                </table>
+
+            </body>
+            </html>
+        `);
+
+        printWindow.document.close();
+        printWindow.print();
+    });
+}
 
 /* =========================================
    PAGE START
@@ -1578,7 +1726,7 @@ document.addEventListener(
       "JNANASHAKTHI MAINTENANCE loaded"
     );
 
-    render();
-
+render();
+renderPurchaseReport();
   }
 );
