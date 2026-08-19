@@ -198,31 +198,11 @@
     <input id="issuedTo" placeholder="Issued to">
     <input id="workOrder" placeholder="Work / Job No.">
     
-  <div class="issue-dropdown">
-
-  <input type="hidden" id="issueType" value="Normal Issue">
-
-  <button type="button" class="issue-btn" onclick="toggleIssueMenu()">
-    <span id="issueTypeLabel">Normal Issue</span> ▾
-  </button>
-
-  <div id="issueMenu" class="issue-menu">
-
-    <button type="button" onclick="selectIssueType('Normal Issue')">
-      Normal Issue
-    </button>
-
-    <button type="button" onclick="selectIssueType('Replace / Repair')">
-      Replace / Repair
-    </button>
-
-    <button type="button" onclick="selectIssueType('Dump / Damage')">
-      Dump / Damage
-    </button>
-
-  </div>
-
-</div>
+  <select id="issueType" required>
+  <option value="Normal Issue">Normal Issue</option>
+  <option value="Replace / Repair">Replace / Repair</option>
+  <option value="Dump / Damage">Dump / Damage</option>
+  </select>
 
 <button type="submit">Issue Stock</button>
   
