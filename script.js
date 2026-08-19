@@ -915,6 +915,10 @@ async function render() {
                   ${row.work_order || "-"}
                 </td>
 
+                 <td>
+                   ${row.issue_type || "Normal Issue"}
+                 </td>
+                 
                 <td>
                   <button
                     type="button"
