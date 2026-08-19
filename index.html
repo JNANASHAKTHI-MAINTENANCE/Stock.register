@@ -225,9 +225,57 @@
 
 <section id="stock" class="page">
   <h2>Current Stock</h2>
+
   <input class="search" id="stockSearch" placeholder="Search current stock...">
   <div class="tablewrap"><table><thead><tr><th>Code</th><th>Item</th><th>Unit</th><th>Stock In</th><th>Stock Out</th><th>Balance</th><th>Status</th></tr></thead><tbody id="stockTable"></tbody></table></div>
+</table>
+</div>
 </section>
+  
+  <section id="purchaseReport" class="page">
+
+    <h2>Purchase Report</h2>
+
+    <div class="formgrid">
+
+        <input type="date" id="reportFrom">
+
+        <input type="date" id="reportTo">
+
+        <button type="button" id="searchPurchaseReport">
+            Search
+        </button>
+
+        <button type="button" id="printPurchaseReport">
+            Print
+        </button>
+
+    </div>
+
+    <div class="tablewrap">
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Indent No.</th>
+                    <th>PO No.</th>
+                    <th>Vendor</th>
+                    <th>Invoice</th>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Rate</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+
+            <tbody id="purchaseReportTable"></tbody>
+
+        </table>
+    </div>
+
+  </section>
+  
   <section id="suppliers" class="page">
   <h2>Suppliers</h2>
 
